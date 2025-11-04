@@ -28,24 +28,24 @@
 
 **Purpose**: Infra que TODOS os user stories dependem.
 
-- [ ] T010 Criar esqueleto `src/metrics/profiler_cpu.py` (funções start_cpu_profile, stop_cpu_profile, profile_lines)
-- [ ] T011 [P] Criar esqueleto `src/metrics/profiler_memory.py` (função trace_memory)
-- [ ] T012 [P] Criar esqueleto `src/metrics/system_stats.py` (class SystemSampler + SystemStatSample dataclass)
-- [ ] T013 [P] Criar esqueleto `src/metrics/hardware.py` (função snapshot_hardware)
-- [ ] T014 Criar esqueleto `src/metrics/aggregator.py` (funções aggregate, aggregate_series placeholders)
-- [ ] T015 [P] Criar esqueleto `src/metrics/report_markdown.py` (funções build_report, build_series_report placeholders)
-- [ ] T016 [P] Criar esqueleto `src/metrics/plotting.py` (funções plot_time_series, plot_memory_series, plot_scalability placeholders)
-- [ ] T017 Implementar `src/metrics/__init__.py` com classe ProfilerManager orquestrando módulos
-- [ ] T018 Criar teste unitário falhando `tests/unit/test_profiler_cpu.py` (verifica start/stop geram estrutura esperada)
-- [ ] T019 [P] Criar teste unitário falhando `tests/unit/test_profiler_memory.py`
-- [ ] T020 [P] Criar teste unitário falhando `tests/unit/test_system_stats.py`
-- [ ] T021 [P] Criar teste unitário falhando `tests/unit/test_aggregator.py`
-- [ ] T022 [P] Criar teste unitário falhando `tests/unit/test_report_markdown.py`
-- [ ] T023 [P] Criar teste unitário falhando `tests/unit/test_plotting.py`
-- [ ] T024 Criar teste integração inicial falhando `tests/integration/test_metrics_flow.py`
-- [ ] T025 Adicionar logging estruturado (key=value) em módulos metrics
-- [ ] T026 Implementar fallback para ciclos/cache misses (campos None + warning)
-- [ ] T027 Validar overhead inicial (script rápido `scripts/measure_overhead.py` placeholder)
+- [x] T010 Criar esqueleto `src/metrics/profiler_cpu.py` (funções start_cpu_profile, stop_cpu_profile, profile_lines)
+- [x] T011 [P] Criar esqueleto `src/metrics/profiler_memory.py` (função trace_memory)
+- [x] T012 [P] Criar esqueleto `src/metrics/system_stats.py` (class SystemSampler + SystemStatSample dataclass)
+- [x] T013 [P] Criar esqueleto `src/metrics/hardware.py` (função snapshot_hardware)
+- [x] T014 Criar esqueleto `src/metrics/aggregator.py` (funções aggregate, aggregate_series placeholders)
+- [x] T015 [P] Criar esqueleto `src/metrics/report_markdown.py` (funções build_report, build_series_report placeholders)
+- [x] T016 [P] Criar esqueleto `src/metrics/plotting.py` (funções plot_time_series, plot_memory_series, plot_scalability placeholders)
+- [x] T017 Implementar `src/metrics/__init__.py` com classe ProfilerManager orquestrando módulos
+- [x] T018 Criar teste unitário falhando `tests/unit/test_profiler_cpu.py` (verifica start/stop geram estrutura esperada)
+- [x] T019 [P] Criar teste unitário falhando `tests/unit/test_profiler_memory.py`
+- [x] T020 [P] Criar teste unitário falhando `tests/unit/test_system_stats.py`
+- [x] T021 [P] Criar teste unitário falhando `tests/unit/test_aggregator.py`
+- [x] T022 [P] Criar teste unitário falhando `tests/unit/test_report_markdown.py`
+- [x] T023 [P] Criar teste unitário falhando `tests/unit/test_plotting.py`
+- [x] T024 Criar teste integração inicial falhando `tests/integration/test_metrics_flow.py`
+- [x] T025 Adicionar logging estruturado (key=value) em módulos metrics
+- [x] T026 Implementar fallback para ciclos/cache misses (campos None + warning)
+- [x] T027 Validar overhead inicial (script rápido `scripts/measure_overhead.py` placeholder)
 
 **Checkpoint**: Métricas prontas para uso neutro. Todos testes configurados & falhando.
 
