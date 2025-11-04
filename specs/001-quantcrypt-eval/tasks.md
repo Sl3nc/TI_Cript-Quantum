@@ -102,17 +102,17 @@
 **Independent Test**: Executar `run_scalability` gera relatórios individuais + comparativo agregando métricas.
 
 ### Tests (antes implementação)
-- [ ] T050 [P] [US3] Criar teste `tests/unit/test_aggregate_series.py` (falha: agregados ausentes)
-- [ ] T051 [US3] Criar teste integração `tests/integration/test_run_scalability.py`
+- [x] T050 [P] [US3] Criar teste `tests/unit/test_aggregate_series.py` (falha: agregados ausentes)
+- [x] T051 [US3] Criar teste integração `tests/integration/test_run_scalability.py`
 
 ### Implementation
-- [ ] T052 [P] [US3] Implementar `aggregate_series` em aggregator.py
-- [ ] T053 [P] [US3] Implementar `run_scalability.py` (loop volumes + chamada run_single interna)
-- [ ] T054 [P] [US3] Implementar `plot_scalability` gráficos comparativos
-- [ ] T055 [US3] Implementar `report_markdown.build_series_report` relatório comparativo
-- [ ] T056 [US3] Testes verificam métricas agregadas corretas (tempo médio, pico memória)
-- [ ] T057 [US3] Teste verificação de persistência de todos arquivos
-- [ ] T058 [US3] Manejo de falha parcial (volume falha → status partial marcado)
+- [x] T052 [P] [US3] Implementar `aggregate_series` em aggregator.py
+- [x] T053 [P] [US3] Implementar `run_scalability.py` (loop volumes + chamada run_single interna)
+- [x] T054 [P] [US3] Implementar `plot_scalability` gráficos comparativos
+- [x] T055 [US3] Implementar `report_markdown.build_series_report` relatório comparativo
+- [x] T056 [US3] Testes verificam métricas agregadas corretas (tempo médio, pico memória)
+- [x] T057 [US3] Teste verificação de persistência de todos arquivos
+- [x] T058 [US3] Manejo de falha parcial (volume falha → status partial marcado)
 
 **Checkpoint**: Série escalável pronta; análise comparativa disponível.
 
