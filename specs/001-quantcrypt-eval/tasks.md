@@ -14,14 +14,14 @@
 
 **Purpose**: Inicializar estrutura de diretórios, configuração e dependências.
 
-- [ ] T001 Criar diretórios base `src/algorithms`, `src/metrics`, `src/orchestration`, `tests/unit`, `tests/integration`, `tests/contract`, `docs/results`
-- [ ] T002 Criar arquivo `requirements.txt` com dependências listadas
-- [ ] T003 [P] Adicionar `__init__.py` em `src/`, `src/algorithms/`, `src/metrics/`, `src/orchestration/`
-- [ ] T004 [P] Criar `src/orchestration/config.py` com parâmetros: DEFAULT_VOLUME=1000, SEED=42, RESULTS_DIR
-- [ ] T006 Criar `README.md` inicial descrevendo objetivo e execução básica
-- [ ] T007 [P] Criar `tests/__init__.py` e subpastas `__init__.py`
-- [ ] T008 Definir padrão de timestamp e unicidade em comentário no `config.py`
-- [ ] T009 Criar `docs/results/.gitkeep` para versionamento
+- [x] T001 Criar diretórios base `src/algorithms`, `src/metrics`, `src/orchestration`, `tests/unit`, `tests/integration`, `tests/contract`, `docs/results`
+- [x] T002 Criar arquivo `requirements.txt` com dependências listadas
+- [x] T003 [P] Adicionar `__init__.py` em `src/`, `src/algorithms/`, `src/metrics/`, `src/orchestration/`
+- [x] T004 [P] Criar `src/orchestration/config.py` com parâmetros: DEFAULT_VOLUME=1000, SEED=42, RESULTS_DIR
+- [x] T006 Criar `README.md` inicial descrevendo objetivo e execução básica
+- [x] T007 [P] Criar `tests/__init__.py` e subpastas `__init__.py`
+- [x] T008 Definir padrão de timestamp e unicidade em comentário no `config.py`
+- [x] T009 Criar `docs/results/.gitkeep` para versionamento
 
 ---
 ## Phase 2: Foundational (Blocking Prerequisites)
