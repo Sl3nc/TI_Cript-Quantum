@@ -119,17 +119,17 @@
 ---
 ## Phase N: Polish & Cross-Cutting Concerns
 
-- [ ] T059 Criar script auditoria `scripts/hardware_audit.py` (hash + versão dependências)
-- [ ] T060 [P] Adicionar seed consistente em algoritmos quando aplicável
-- [ ] T061 [P] Medir overhead final atualizando `measure_overhead.py`
-- [ ] T062 Revisar logs chave=valor e adicionar contexto de execução
-- [ ] T063 [P] Criar teste integração `tests/integration/test_overhead_estimation.py`
-- [ ] T064 Atualizar `quickstart.md` com novos scripts / exemplos multi-volume
-- [ ] T065 Atualizar `README.md` com seção Reprodutibilidade e Auditoria
-- [ ] T066 [P] Adicionar `docs/results/README.md` descrevendo convenção de arquivos
-- [ ] T067 Verificar neutralidade: script checagem `scripts/check_neutrality.py`
-- [ ] T068 Ajustes finais de estilo (ruff/flake8) se configurado
-- [ ] T069 Validar ausência de implementação criptográfica própria (scan simples)
+- [x] T059 Criar script auditoria `scripts/hardware_audit.py` (hash + versão dependências)
+- [x] T060 [P] Adicionar seed consistente em algoritmos quando aplicável
+- [x] T061 [P] Medir overhead final atualizando `measure_overhead.py`
+- [x] T062 Revisar logs chave=valor e adicionar contexto de execução
+- [x] T063 [P] Criar teste integração `tests/integration/test_overhead_estimation.py`
+- [x] T064 Atualizar `quickstart.md` com novos scripts / exemplos multi-volume
+- [x] T065 Atualizar `README.md` com seção Reprodutibilidade e Auditoria
+- [x] T066 [P] Adicionar `docs/results/README.md` descrevendo convenção de arquivos
+- [x] T067 Verificar neutralidade: script checagem `scripts/check_neutrality.py`
+- [x] T068 Ajustes finais de estilo (ruff/flake8) se configurado
+- [x] T069 Validar ausência de implementação criptográfica própria (scan simples)
 
 ---
 ## Dependencies & Execution Order

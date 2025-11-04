@@ -34,7 +34,7 @@ def measure_baseline(iterations: int = 10) -> float:
 
 def measure_with_profiling(iterations: int = 10) -> float:
     """
-    Mede tempo com profiling ativo.
+    Mede tempo com profiling ativo usando ProfilerManager completo.
     
     Returns:
         Tempo médio em milissegundos
@@ -42,9 +42,11 @@ def measure_with_profiling(iterations: int = 10) -> float:
     times = []
     for _ in range(iterations):
         manager = ProfilerManager()
+        manager.start()
         start = time.perf_counter()
-        manager.profile_function(baseline_workload)
+        baseline_workload()
         end = time.perf_counter()
+        manager.stop()
         times.append((end - start) * 1000)
     
     return sum(times) / len(times)

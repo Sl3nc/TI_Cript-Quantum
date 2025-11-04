@@ -17,8 +17,10 @@ def start_cpu_profile() -> cProfile.Profile:
     Returns:
         cProfile.Profile: Objeto profiler ativo
     """
+    logger.debug("action=start_cpu_profile status=initiated")
     profiler = cProfile.Profile()
     profiler.enable()
+    logger.debug("action=start_cpu_profile status=enabled")
     return profiler
 
 
@@ -37,12 +39,17 @@ def stop_cpu_profile(profiler: cProfile.Profile) -> Dict[str, Any]:
             - total_calls: int
     """
     profiler.disable()
+    logger.debug("action=stop_cpu_profile status=disabled")
     
     stream = StringIO()
     stats = pstats.Stats(profiler, stream=stream)
     stats.sort_stats('cumulative')
     
-    logger.info("action=cpu_profile_stopped primitive_calls=0 total_calls=0")
+    # Extract real metrics
+    total_calls = stats.total_calls if hasattr(stats, 'total_calls') else 0
+    prim_calls = stats.prim_calls if hasattr(stats, 'prim_calls') else 0
+    
+    logger.info(f"action=cpu_profile_stopped primitive_calls={prim_calls} total_calls={total_calls}")
     
     # Placeholder: extrair métricas reais do pstats
     return {
