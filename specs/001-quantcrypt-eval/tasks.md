@@ -56,20 +56,20 @@
 **Independent Test**: Executar `run_single` para MLKEM_1024 volume 1000 gera objeto AlgorithmEvaluation com métricas e status success.
 
 ### Tests (falhando antes da implementação)
-- [ ] T028 [P] [US1] Criar teste `tests/unit/test_mlkem_kem.py` (verifica erro se volume<=0 e estrutura retorno vazio antes implementação)
-- [ ] T029 [P] [US1] Criar teste `tests/unit/test_mldsa_dss.py`
-- [ ] T030 [P] [US1] Criar teste `tests/unit/test_krypton_cipher.py`
-- [ ] T031 [US1] Criar teste integração `tests/integration/test_run_single.py` (espera objeto EvaluationReport futuro, falha inicialmente)
+- [x] T028 [P] [US1] Criar teste `tests/unit/test_mlkem_kem.py` (verifica erro se volume<=0 e estrutura retorno vazio antes implementação)
+- [x] T029 [P] [US1] Criar teste `tests/unit/test_mldsa_dss.py`
+- [x] T030 [P] [US1] Criar teste `tests/unit/test_krypton_cipher.py`
+- [x] T031 [US1] Criar teste integração `tests/integration/test_run_single.py` (espera objeto EvaluationReport futuro, falha inicialmente)
 
 ### Implementation
-- [ ] T032 [P] [US1] Implementar `src/algorithms/mlkem_kem.py` função run_mlkem (placeholder sem lógica)
-- [ ] T033 [P] [US1] Implementar `src/algorithms/mldsa_dss.py` função generate_and_sign (placeholder)
-- [ ] T034 [P] [US1] Implementar `src/algorithms/krypton_cipher.py` função cipher_rounds (placeholder)
-- [ ] T035 [US1] Implementar validação volume>0 em cada função
-- [ ] T036 [US1] Implementar coleta incremental métricas dentro das funções usando ProfilerManager
-- [ ] T037 [US1] Implementar `src/orchestration/run_single.py` (orquestra hardware snapshot + chamada algoritmo + aggregation)
-- [ ] T038 [US1] Criar teste integração valida métricas mínimas (tempo, memória presentes)
-- [ ] T039 [US1] Ajustar testes unitários para esperar estrutura final AlgorithmEvaluation
+- [x] T032 [P] [US1] Implementar `src/algorithms/mlkem_kem.py` função run_mlkem (placeholder sem lógica)
+- [x] T033 [P] [US1] Implementar `src/algorithms/mldsa_dss.py` função generate_and_sign (placeholder)
+- [x] T034 [P] [US1] Implementar `src/algorithms/krypton_cipher.py` função cipher_rounds (placeholder)
+- [x] T035 [US1] Implementar validação volume>0 em cada função
+- [x] T036 [US1] Implementar coleta incremental métricas dentro das funções usando ProfilerManager
+- [x] T037 [US1] Implementar `src/orchestration/run_single.py` (orquestra hardware snapshot + chamada algoritmo + aggregation)
+- [x] T038 [US1] Criar teste integração valida métricas mínimas (tempo, memória presentes)
+- [x] T039 [US1] Ajustar testes unitários para esperar estrutura final AlgorithmEvaluation
 
 **Checkpoint**: Execução única produz avaliação completa (sem relatório ainda).
 
