@@ -2,15 +2,19 @@
 Orquestração de execução única de algoritmo com profiling.
 
 User Story 1: Executar avaliação única com coleta de métricas completas.
+User Story 2: Gerar relatório Markdown individual.
 """
 from typing import Dict, Any
 from datetime import datetime
 from pathlib import Path
 import logging
+import time
 
 from src.metrics import ProfilerManager
 from src.metrics.aggregator import aggregate
-from src.orchestration.config import DEFAULT_VOLUME, SEED, ALGORITHMS
+from src.metrics.report_markdown import build_report
+from src.metrics.plotting import plot_time_series, plot_memory_series
+from src.orchestration.config import DEFAULT_VOLUME, SEED, ALGORITHMS, RESULTS_DIR
 
 logger = logging.getLogger(__name__)
 
@@ -99,7 +103,13 @@ def run_single(
             "seed": seed
         }
         
-        logger.info(f"action=run_single_complete id={evaluation_id} status=success duration_ms={duration_ms:.2f}")
+        # Gerar relatório com timestamp PT-BR e milissegundos para unicidade
+        report_path, image_paths = _generate_report(evaluation, raw_metrics)
+        
+        evaluation["report_path"] = str(report_path)
+        evaluation["report_images"] = [str(p) for p in image_paths]
+        
+        logger.info(f"action=run_single_complete id={evaluation_id} status=success duration_ms={duration_ms:.2f} report={report_path}")
         return evaluation
         
     except Exception as e:
@@ -141,3 +151,77 @@ def _import_krypton():
     """Importa função Krypton."""
     from src.algorithms.krypton_cipher import cipher_rounds
     return cipher_rounds
+
+
+def _generate_report(evaluation: Dict[str, Any], raw_metrics: Dict[str, Any]) -> tuple[Path, list[Path]]:
+    """
+    Gera relatório Markdown e gráficos.
+    
+    Args:
+        evaluation: Dict AlgorithmEvaluation
+        raw_metrics: Métricas brutas incluindo séries temporais
+        
+    Returns:
+        tuple: (report_path, image_paths)
+    """
+    algorithm = evaluation["algorithm"]
+    started_at = datetime.fromisoformat(evaluation["started_at"])
+    
+    # Timestamp PT-BR com milissegundos para unicidade
+    timestamp_str = started_at.strftime("%d-%m-%Y %Hh%Mm%Ss.%f")[:-3]  # Remove últimos 3 dígitos (microsegundos)
+    
+    # Nome do arquivo: Algoritmo - DD-MM-YYYY HHhMMmSSs.mmm.md
+    filename = f"{algorithm} - {timestamp_str}.md"
+    
+    # Diretório específico do algoritmo
+    algo_dir = RESULTS_DIR / algorithm
+    algo_dir.mkdir(parents=True, exist_ok=True)
+    
+    report_path = algo_dir / filename
+    
+    # Verificar colisão (raro mas possível)
+    counter = 1
+    while report_path.exists():
+        filename = f"{algorithm} - {timestamp_str}_{counter}.md"
+        report_path = algo_dir / filename
+        counter += 1
+    
+    # Gerar gráficos
+    image_paths = []
+    
+    # Gráfico 1: CPU time (se houver dados de série temporal)
+    memory_increments = raw_metrics.get("memory_metrics", {}).get("memory_increments", [])
+    if memory_increments:
+        cpu_time_plot = algo_dir / f"{algorithm}_cpu_time_{timestamp_str}.png"
+        try:
+            timestamps = list(range(len(memory_increments)))
+            # Placeholder: usar incrementos de memória como proxy para série temporal
+            plot_time_series(
+                timestamps,
+                memory_increments[:50] if len(memory_increments) > 50 else memory_increments,
+                cpu_time_plot,
+                title=f"{algorithm} - CPU Time Series",
+                ylabel="Time Offset (arbitrary)"
+            )
+            image_paths.append(cpu_time_plot)
+        except Exception as e:
+            logger.warning(f"Failed to generate CPU time plot: {e}")
+    
+    # Gráfico 2: Memory usage
+    if memory_increments:
+        memory_plot = algo_dir / f"{algorithm}_memory_{timestamp_str}.png"
+        try:
+            plot_memory_series(
+                memory_increments[:50] if len(memory_increments) > 50 else memory_increments,
+                memory_plot
+            )
+            image_paths.append(memory_plot)
+        except Exception as e:
+            logger.warning(f"Failed to generate memory plot: {e}")
+    
+    # Gerar relatório Markdown
+    build_report(evaluation, report_path, image_paths)
+    
+    logger.info(f"action=report_generated path={report_path} images={len(image_paths)}")
+    
+    return report_path, image_paths

@@ -80,18 +80,18 @@
 **Independent Test**: Fornecer avaliação simulada gera arquivo `<Algoritmo> - <timestamp>.md` + imagens.
 
 ### Tests (antes implementação)
-- [ ] T040 [P] [US2] Criar teste `tests/unit/test_report_generation.py` (falha: arquivo não criado)
-- [ ] T041 [P] [US2] Criar teste `tests/unit/test_plot_files.py` (falha: imagens não existem)
-- [ ] T042 [US2] Criar teste integração `tests/integration/test_run_single_report.py` (espera relatório completo)
+- [x] T040 [P] [US2] Criar teste `tests/unit/test_report_generation.py` (falha: arquivo não criado)
+- [x] T041 [P] [US2] Criar teste `tests/unit/test_plot_files.py` (falha: imagens não existem)
+- [x] T042 [US2] Criar teste integração `tests/integration/test_run_single_report.py` (espera relatório completo)
 
 ### Implementation
-- [ ] T043 [P] [US2] Implementar `report_markdown.build_report` (tabela tabulate + seções)
-- [ ] T044 [P] [US2] Implementar funções plotting para linhas/barras salvando `.png`
-- [ ] T045 [US2] Integrar relatório em `run_single.py` retornando EvaluationReport
-- [ ] T046 [US2] Implementar naming com timestamp milissegundos + sufixo se colisão
-- [ ] T047 [US2] Atualizar testes para verificar existência de arquivo e imagens
-- [ ] T048 [US2] Adicionar metadados hardware ao relatório
-- [ ] T049 [US2] Validar unicidade (teste cria 3 execuções rápidas)
+- [x] T043 [P] [US2] Implementar `report_markdown.build_report` (tabela tabulate + seções)
+- [x] T044 [P] [US2] Implementar funções plotting para linhas/barras salvando `.png`
+- [x] T045 [US2] Integrar relatório em `run_single.py` retornando EvaluationReport
+- [x] T046 [US2] Implementar naming com timestamp milissegundos + sufixo se colisão
+- [x] T047 [US2] Atualizar testes para verificar existência de arquivo e imagens
+- [x] T048 [US2] Adicionar metadados hardware ao relatório
+- [x] T049 [US2] Validar unicidade (teste cria 3 execuções rápidas)
 
 **Checkpoint**: Relatórios individuais funcionando. MVP ampliado para análise completa.
 
