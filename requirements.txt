@@ -1,4 +1,3 @@
-# quantCrypt, numpy, pandas, tabulate, matplotlib, psutil, py-cpuinfo, line_profiler, memory_profiler, pytest
 quantcrypt>=1.0.0
 numpy>=1.24.0
 pandas>=2.0.0
