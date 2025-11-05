@@ -4,9 +4,11 @@ Krypton Cipher usando quantCrypt.
 Princípio I da Constituição: Uso EXCLUSIVO de quantCrypt.
 """
 from typing import Dict, Any
-import logging
+from logging import getLogger
+from quantcrypt.cipher import Krypton
+from secrets import token_bytes
 
-logger = logging.getLogger(__name__)
+logger = getLogger(__name__)
 
 
 def cipher_rounds(volume: int, seed: int = 42) -> Dict[str, Any]:
@@ -32,17 +34,22 @@ def cipher_rounds(volume: int, seed: int = 42) -> Dict[str, Any]:
         raise ValueError(f"volume must be greater than 0, got {volume}")
     
     logger.info(f"action=cipher_rounds_start volume={volume} seed={seed}")
-    
-    # TODO: Implementar lógica real com quantCrypt
-    # from quantCrypt import Krypton
-    # 
-    # Placeholder: simular cifragens
-    # for i in range(volume):
-    #     key = Krypton.generate_key(seed=seed+i)
-    #     plaintext = f"test_data_{i}".encode()
-    #     ciphertext = Krypton.encrypt(key, plaintext)
-    #     decrypted = Krypton.decrypt(key, ciphertext)
-    #     assert decrypted == plaintext
+    plaintext = b"Hello World"
+        
+    # Simular cifragens
+    for _ in range(volume):
+        secret_key = token_bytes(64)
+        krypton = Krypton(secret_key)
+
+        krypton.begin_encryption()
+        ciphertext = krypton.encrypt(plaintext)
+        verif_dp = krypton.finish_encryption()
+
+        krypton.begin_decryption(verif_dp)
+        plaintext_copy = krypton.decrypt(ciphertext)
+        krypton.finish_decryption()
+
+        assert plaintext_copy == plaintext
     
     result = {
         "operations_completed": volume,

@@ -5,9 +5,10 @@ Princípio I da Constituição: Uso EXCLUSIVO de quantCrypt.
 Sem implementações customizadas de criptografia.
 """
 from typing import Dict, Any
-import logging
+from logging import getLogger
+from quantcrypt.kem import MLKEM_1024
 
-logger = logging.getLogger(__name__)
+logger = getLogger(__name__)
 
 
 def run_mlkem(volume: int, seed: int = 42) -> Dict[str, Any]:
@@ -33,16 +34,14 @@ def run_mlkem(volume: int, seed: int = 42) -> Dict[str, Any]:
         raise ValueError(f"volume must be greater than 0, got {volume}")
     
     logger.info(f"action=run_mlkem_start volume={volume} seed={seed}")
-    
-    # TODO: Implementar lógica real com quantCrypt
-    # from quantCrypt import MLKEM_1024
-    # 
-    # Placeholder: simular execuções
-    # for i in range(volume):
-    #     public_key, secret_key = MLKEM_1024.keygen(seed=seed+i)
-    #     ciphertext, shared_secret = MLKEM_1024.encapsulate(public_key)
-    #     decapsulated_secret = MLKEM_1024.decapsulate(secret_key, ciphertext)
-    #     assert shared_secret == decapsulated_secret
+    kem = MLKEM_1024()
+        
+    # Simular execuções
+    for _ in range(volume):
+        public_key, secret_key = kem.keygen()
+        cipher_text, shared_secret = kem.encaps(public_key)
+        decapsulated_secret = kem.decaps(secret_key, cipher_text)
+        assert shared_secret == decapsulated_secret
     
     result = {
         "operations_completed": volume,
