@@ -7,25 +7,21 @@ User Story 2: Gerar relatório Markdown individual.
 from typing import Dict, Any
 from datetime import datetime
 from pathlib import Path
-import logging
-import argparse
-import sys
+from logging import getLogger, INFO, basicConfig
+from argparse import ArgumentParser
+from sys import path
+from config import PROJECT_ROOT
 
-ROOT_DIR = Path(__file__[0:__file__.find('\\src')]).__str__()
-if ROOT_DIR not in sys.path:
-    sys.path.insert(0, ROOT_DIR)
-
-from src.algorithms.mlkem_kem import run_mlkem
-from src.algorithms.mldsa_dss import generate_and_sign
-from src.algorithms.krypton_cipher import cipher_rounds
+if str(PROJECT_ROOT) not in path:
+    path.insert(0, str(PROJECT_ROOT))
 
 from src.metrics import ProfilerManager
 from src.metrics.aggregator import aggregate
 from src.metrics.report_markdown import build_report
 from src.metrics.plotting import plot_time_series, plot_memory_series
-from src.orchestration.config import DEFAULT_VOLUME, SEED, ALGORITHMS, RESULTS_DIR
+from src.orchestration.config import DEFAULT_VOLUME, SEED, ALGORITHMS, RESULTS_DIR, ALGORITHMS_FUNCTIONS, DEFAULT_ALGORITM
 
-logger = logging.getLogger(__name__)
+logger = getLogger(__name__)
 
 
 def run_single(
@@ -58,33 +54,16 @@ def run_single(
     Raises:
         ValueError: Se algorithm inválido ou volume <= 0
     """
-    # Validação de algoritmo
-    if algorithm not in ALGORITHMS:
-        valid_algos = ", ".join(ALGORITHMS.keys())
-        raise ValueError(f"Unknown algorithm '{algorithm}'. Valid options: {valid_algos}")
+    validate_data(algorithm, volume)
     
-    # Validação de volume (propagada para funções de algoritmo)
-    if volume <= 0:
-        raise ValueError(f"volume must be greater than 0, got {volume}")
+    algo_func = ALGORITHMS_FUNCTIONS[algorithm]
     
-    logger.info(f"action=run_single_start algorithm={algorithm} volume={volume} seed={seed}")
-    
-    # Importar função específica do algoritmo
-    algorithm_functions = {
-        "MLKEM_1024": run_mlkem,
-        "MLDSA_87": generate_and_sign,
-        "Krypton": cipher_rounds
-    }
-    
-    algo_func = algorithm_functions[algorithm]
-    
-    # Timestamps
     started_at = datetime.now()
     evaluation_id = f"{algorithm}_{started_at.strftime('%Y%m%d_%H%M%S_%f')}"
     
-    # Profiling completo
     profiler = ProfilerManager()
     
+    logger.info(f"action=run_single: START algorithm={algorithm} volume={volume} seed={seed}")
     try:
         # Executa algoritmo com profiling
         profiled_result = profiler.profile_function(algo_func, volume=volume, seed=seed)
@@ -118,14 +97,14 @@ def run_single(
         evaluation["report_path"] = str(report_path)
         evaluation["report_images"] = [str(p) for p in image_paths]
         
-        logger.info(f"action=run_single_complete id={evaluation_id} status=success duration_ms={duration_ms:.2f} report={report_path}")
+        logger.info(f"action=run_single: COMPLETE id={evaluation_id} status=success duration_ms={duration_ms:.2f} report={report_path}")
         return evaluation
         
     except Exception as e:
         ended_at = datetime.now()
         duration_ms = (ended_at - started_at).total_seconds() * 1000
         
-        logger.error(f"action=run_single_failed algorithm={algorithm} error={str(e)}")
+        logger.error(f"action=run_single: FAILED algorithm={algorithm} error={str(e)}")
         
         # Retorna estrutura com status failed
         return {
@@ -143,6 +122,14 @@ def run_single(
             "seed": seed
         }
 
+def validate_data(algorithm, volume):
+    if algorithm not in ALGORITHMS:
+        valid_algos = ", ".join(ALGORITHMS.keys())
+        raise ValueError(f"Unknown algorithm '{algorithm}'. Valid options: {valid_algos}")
+    
+    if volume <= 0:
+        raise ValueError(f"volume must be greater than 0, got {volume}")
+
 
 def _generate_report(evaluation: Dict[str, Any], raw_metrics: Dict[str, Any]) -> tuple[Path, list[Path]]:
     """
@@ -158,32 +145,28 @@ def _generate_report(evaluation: Dict[str, Any], raw_metrics: Dict[str, Any]) ->
     algorithm = evaluation["algorithm"]
     started_at = datetime.fromisoformat(evaluation["started_at"])
     
-    # Timestamp PT-BR com milissegundos para unicidade
-    timestamp_str = started_at.strftime("%d-%m-%Y %Hh%Mm%Ss.%f")[:-3]  # Remove últimos 3 dígitos (microsegundos)
-    
-    # Nome do arquivo: Algoritmo - DD-MM-YYYY HHhMMmSSs.mmm.md
-    filename = f"{algorithm} - {timestamp_str}.md"
+    timestamp_str = started_at.strftime("%d-%m-%Y_%Hh-%Mm")
     
     # Diretório específico do algoritmo
-    algo_dir = RESULTS_DIR / algorithm
-    algo_dir.mkdir(parents=True, exist_ok=True)
+    algo_dir = RESULTS_DIR / algorithm / timestamp_str
     
-    report_path = algo_dir / filename
+    report_path = algo_dir / f"relatorio.md"
     
     # Verificar colisão (raro mas possível)
     counter = 1
-    while report_path.exists():
-        filename = f"{algorithm} - {timestamp_str}_{counter}.md"
-        report_path = algo_dir / filename
+    while algo_dir.exists():
+        timestamp_str += f' - {counter}'
+        algo_dir = RESULTS_DIR / algorithm / timestamp_str
         counter += 1
     
-    # Gerar gráficos
+    algo_dir.mkdir(parents=True, exist_ok=True)
+
     image_paths = []
     
     # Gráfico 1: CPU time (se houver dados de série temporal)
     memory_increments = raw_metrics.get("memory_metrics", {}).get("memory_increments", [])
     if memory_increments:
-        cpu_time_plot = algo_dir / f"{algorithm}_cpu_time_{timestamp_str}.png"
+        cpu_time_plot = algo_dir / f"cpu_time.png"
         try:
             timestamps = list(range(len(memory_increments)))
             # Placeholder: usar incrementos de memória como proxy para série temporal
@@ -191,7 +174,7 @@ def _generate_report(evaluation: Dict[str, Any], raw_metrics: Dict[str, Any]) ->
                 timestamps,
                 memory_increments[:50] if len(memory_increments) > 50 else memory_increments,
                 cpu_time_plot,
-                title=f"{algorithm} - CPU Time Series",
+                title=f"CPU Time Series",
                 ylabel="Time Offset (arbitrary)"
             )
             image_paths.append(cpu_time_plot)
@@ -200,7 +183,7 @@ def _generate_report(evaluation: Dict[str, Any], raw_metrics: Dict[str, Any]) ->
     
     # Gráfico 2: Memory usage
     if memory_increments:
-        memory_plot = algo_dir / f"{algorithm}_memory_{timestamp_str}.png"
+        memory_plot = algo_dir / f"memory.png"
         try:
             plot_memory_series(
                 memory_increments[:50] if len(memory_increments) > 50 else memory_increments,
@@ -219,20 +202,30 @@ def _generate_report(evaluation: Dict[str, Any], raw_metrics: Dict[str, Any]) ->
 
 
 if __name__ == "__main__":
-    # Configurar logging para execução direta
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s [%(levelname)s] %(message)s"
+    basicConfig(
+        level= INFO,
+        format="[%(levelname)s] %(message)s"
     )
     
-    parser = argparse.ArgumentParser(description="Execute uma avaliação única de algoritmo")
-    parser.add_argument("--algorithm", "-a", default="MLKEM_1024", 
-                       choices=list(ALGORITHMS.keys()),
-                       help="Algoritmo a executar")
-    parser.add_argument("--volume", "-v", type=int, default=DEFAULT_VOLUME,
-                       help="Número de operações")
-    parser.add_argument("--seed", "-s", type=int, default=SEED,
-                       help="Seed para reprodutibilidade")
+    parser = ArgumentParser(description="Execute uma avaliação única de algoritmo")
+    parser.add_argument(
+        "--algorithm", "-a",
+        default=DEFAULT_ALGORITM,                
+        choices=list(ALGORITHMS.keys()),
+        help="Algoritmo a executar"
+    )
+
+    parser.add_argument(
+        "--volume", "-v",
+        type=int, default=DEFAULT_VOLUME,
+        help="Número de operações"
+    )
+
+    parser.add_argument(
+        "--seed", "-s",
+        type=int, default=SEED,
+        help="Seed para reprodutibilidade"
+)
     
     args = parser.parse_args()
     
