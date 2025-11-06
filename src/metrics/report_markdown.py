@@ -80,7 +80,6 @@ def build_report(evaluation: Dict[str, Any], output_path: Path, image_paths: Lis
             ["CPU Time", f"{metrics.get('cpu_time_ms', 0):.2f} ms"],
             ["Memory Peak", f"{metrics.get('memory_mb', 0):.2f} MB"],
             ["CPU Cycles", _format_metric(metrics.get('cpu_cycles'))],
-            ["Cache Misses", _format_metric(metrics.get('cache_misses'))],
         ]
         
         table = tabulate.tabulate(

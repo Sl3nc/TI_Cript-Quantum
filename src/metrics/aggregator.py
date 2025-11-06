@@ -16,7 +16,6 @@ def aggregate(metrics_list: List[Dict[str, Any]]) -> Dict[str, Any]:
             - cpu_time_ms: float
             - memory_mb: float
             - cpu_cycles: int | None
-            - cache_misses: int | None
             - hardware_info: dict
     """
     # Placeholder: implementar agregação real
@@ -24,7 +23,6 @@ def aggregate(metrics_list: List[Dict[str, Any]]) -> Dict[str, Any]:
         "cpu_time_ms": 0.0,
         "memory_mb": 0.0,
         "cpu_cycles": None,
-        "cache_misses": None,
         "hardware_info": {}
     }
 

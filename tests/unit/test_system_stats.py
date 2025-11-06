@@ -27,7 +27,6 @@ def test_system_sampler_sample_structure():
     assert hasattr(sample, 'cpu_percent')
     assert hasattr(sample, 'memory_percent')
     assert hasattr(sample, 'cpu_cycles')
-    assert hasattr(sample, 'cache_misses')
     
     # Timestamp deve ser plausível
     assert sample.timestamp > 0
@@ -36,9 +35,8 @@ def test_system_sampler_sample_structure():
     assert sample.cpu_percent >= 0
     assert sample.memory_percent >= 0
     
-    # cpu_cycles e cache_misses são None por enquanto (placeholder)
-    assert sample.cpu_cycles is None
-    assert sample.cache_misses is None
+    # cpu_cycles pode ser None (se não disponível) ou int
+    assert sample.cpu_cycles is None or isinstance(sample.cpu_cycles, int)
 
 
 def test_system_sampler_stop_aggregates():
@@ -57,14 +55,10 @@ def test_system_sampler_stop_aggregates():
     assert "cpu_percent_avg" in aggregated
     assert "memory_percent_max" in aggregated
     assert "cpu_cycles" in aggregated
-    assert "cache_misses" in aggregated
     
     # Valores devem ser razoáveis
     assert aggregated["cpu_percent_avg"] >= 0
     assert aggregated["memory_percent_max"] >= 0
     
-    # Placeholders
-    assert aggregated["cpu_cycles"] is None
-    assert aggregated["cache_misses"] is None
-    
-    # TODO: Teste falhará quando implementarmos contadores reais de ciclos/cache
+    # Contadores podem ser None (se não disponíveis) ou int
+    assert aggregated["cpu_cycles"] is None or isinstance(aggregated["cpu_cycles"], int)

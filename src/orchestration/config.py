@@ -43,6 +43,5 @@ REQUIRED_METRICS = [
     "cpu_time_ms",
     "memory_mb",
     "cpu_cycles",
-    "cache_misses",
     "hardware_info"
 ]

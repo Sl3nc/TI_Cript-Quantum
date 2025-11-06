@@ -22,7 +22,6 @@
 | cpu_time_ms | float | Tempo acumulado CPU | >=0 |
 | memory_mb | float | Memória utilizada | >=0 |
 | cpu_cycles | int | Ciclos CPU (estimativa/coleta) | >=0 or null fallback |
-| cache_misses | int | Misses de cache | >=0 or null fallback |
 | cpu_percent | float | Percentual de uso CPU processo | 0-100 |
 
 ## Entity: HardwareProfile

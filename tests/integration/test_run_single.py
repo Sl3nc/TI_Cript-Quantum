@@ -34,7 +34,7 @@ def test_run_single_collects_minimum_metrics():
     """
     Valida que métricas mínimas são coletadas (Princípio II).
     
-    Métricas obrigatórias: cpu_time, memory, cpu_cycles, cache_misses, hardware_info
+    Métricas obrigatórias: cpu_time, memory, cpu_cycles, hardware_info
     """
     from src.orchestration.run_single import run_single
     
@@ -52,9 +52,6 @@ def test_run_single_collects_minimum_metrics():
     
     # CPU cycles (pode ser None se fallback)
     assert "cpu_cycles" in metrics, "CPU cycles deve estar presente (None se unavailable)"
-    
-    # Cache misses (pode ser None se fallback)
-    assert "cache_misses" in metrics, "Cache misses deve estar presente (None se unavailable)"
     
     # Hardware info
     assert "hardware_profile" in result, "Hardware profile é obrigatório"

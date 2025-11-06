@@ -18,7 +18,6 @@ def test_aggregate_structure():
     assert "cpu_time_ms" in result
     assert "memory_mb" in result
     assert "cpu_cycles" in result
-    assert "cache_misses" in result
     assert "hardware_info" in result
     
     # TODO: Implementação placeholder retorna zeros

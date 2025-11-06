@@ -163,8 +163,34 @@ def _generate_report(evaluation: Dict[str, Any], raw_metrics: Dict[str, Any]) ->
 
     image_paths = []
     
-    # Gráfico 1: CPU time (se houver dados de série temporal)
     memory_increments = raw_metrics.get("memory_metrics", {}).get("memory_increments", [])
+    
+    # Gráfico 1: CPU time (se houver dados de série temporal)
+    generate_cpu_time_plot(algo_dir, image_paths, memory_increments)
+    
+    # Gráfico 2: Memory usage
+    generate_memory_plot(algo_dir, image_paths, memory_increments)
+    
+    # Gerar relatório Markdown
+    build_report(evaluation, report_path, image_paths)
+    
+    logger.info(f"action=report_generated path={report_path} images={len(image_paths)}")
+    
+    return report_path, image_paths
+
+def generate_memory_plot(algo_dir, image_paths, memory_increments):
+    if memory_increments:
+        memory_plot = algo_dir / f"memory.png"
+        try:
+            plot_memory_series(
+                memory_increments[:50] if len(memory_increments) > 50 else memory_increments,
+                memory_plot
+            )
+            image_paths.append(memory_plot)
+        except Exception as e:
+            logger.warning(f"Failed to generate memory plot: {e}")
+
+def generate_cpu_time_plot(algo_dir, image_paths, memory_increments):
     if memory_increments:
         cpu_time_plot = algo_dir / f"cpu_time.png"
         try:
@@ -180,25 +206,6 @@ def _generate_report(evaluation: Dict[str, Any], raw_metrics: Dict[str, Any]) ->
             image_paths.append(cpu_time_plot)
         except Exception as e:
             logger.warning(f"Failed to generate CPU time plot: {e}")
-    
-    # Gráfico 2: Memory usage
-    if memory_increments:
-        memory_plot = algo_dir / f"memory.png"
-        try:
-            plot_memory_series(
-                memory_increments[:50] if len(memory_increments) > 50 else memory_increments,
-                memory_plot
-            )
-            image_paths.append(memory_plot)
-        except Exception as e:
-            logger.warning(f"Failed to generate memory plot: {e}")
-    
-    # Gerar relatório Markdown
-    build_report(evaluation, report_path, image_paths)
-    
-    logger.info(f"action=report_generated path={report_path} images={len(image_paths)}")
-    
-    return report_path, image_paths
 
 
 if __name__ == "__main__":

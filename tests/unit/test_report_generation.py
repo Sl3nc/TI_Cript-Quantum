@@ -26,8 +26,7 @@ def test_build_report_creates_markdown_file():
             "metrics": {
                 "cpu_time_ms": 2300.5,
                 "memory_mb": 45.2,
-                "cpu_cycles": 5000000,
-                "cache_misses": 1200
+                "cpu_cycles": 5000000
             },
             "hardware_profile": {
                 "cpu_brand": "Intel i7",
@@ -93,8 +92,7 @@ def test_build_report_formats_metrics_table():
             "metrics": {
                 "cpu_time_ms": 150.75,
                 "memory_mb": 22.5,
-                "cpu_cycles": 300000,
-                "cache_misses": 450
+                "cpu_cycles": 300000
             },
             "hardware_profile": {}
         }
