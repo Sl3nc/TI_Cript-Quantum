@@ -15,7 +15,6 @@ Usage:
 import hashlib
 import json
 import platform
-import sys
 from datetime import datetime
 from pathlib import Path
 
@@ -58,13 +57,13 @@ def get_hardware_info():
 def get_installed_packages():
     """Get list of installed packages with versions."""
     try:
-        import pkg_resources
+        from importlib.metadata import distributions
         packages = {}
-        for dist in pkg_resources.working_set:
-            packages[dist.project_name] = dist.version
+        for dist in distributions():
+            packages[dist.name] = dist.version
         return packages
     except ImportError:
-        return {"error": "setuptools not available"}
+        return {"error": "importlib.metadata not available"}
 
 
 def compute_environment_hash(hardware_info, packages):

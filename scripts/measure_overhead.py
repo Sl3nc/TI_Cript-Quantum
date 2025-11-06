@@ -1,82 +1,133 @@
+#!/usr/bin/env python3
 """
-Script para medir overhead de profiling.
+Measure Profiling Overhead Script
 
-Valida constraint: overhead < 10% conforme Princípio IV da Constituição.
+Measures the overhead introduced by profiling instrumentation.
+Validates that overhead stays within constitutional limits (<10%).
+
+Usage:
+    python scripts/measure_overhead.py [--iterations N]
 """
+
 import time
+import sys
+from pathlib import Path
+from statistics import mean
+
+# Add root to path for imports
+ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
 from src.metrics import ProfilerManager
+from src.algorithms.mlkem_kem import run_mlkem
 
 
-def baseline_workload():
-    """Workload de referência sem profiling."""
-    data = []
-    for i in range(50000):
-        data.append(i ** 2)
-    return sum(data)
-
-
-def measure_baseline(iterations: int = 10) -> float:
+def measure_baseline(iterations: int = 10, volume: int = 100) -> float:
     """
-    Mede tempo baseline sem profiling.
+    Measure baseline execution time without profiling.
     
+    Args:
+        iterations: Number of iterations to average
+        volume: Number of operations per iteration
+        
     Returns:
-        Tempo médio em milissegundos
+        Average execution time in milliseconds
     """
     times = []
+    
     for _ in range(iterations):
         start = time.perf_counter()
-        baseline_workload()
+        run_mlkem(volume=volume, seed=42)
         end = time.perf_counter()
-        times.append((end - start) * 1000)
+        times.append((end - start) * 1000)  # Convert to ms
     
-    return sum(times) / len(times)
+    return mean(times)
 
 
-def measure_with_profiling(iterations: int = 10) -> float:
+def measure_with_profiling(iterations: int = 10, volume: int = 100) -> float:
     """
-    Mede tempo com profiling ativo usando ProfilerManager completo.
+    Measure execution time with profiling enabled.
     
+    Args:
+        iterations: Number of iterations to average
+        volume: Number of operations per iteration
+        
     Returns:
-        Tempo médio em milissegundos
+        Average execution time in milliseconds
     """
     times = []
-    for _ in range(iterations):
-        manager = ProfilerManager()
-        manager.start()
-        start = time.perf_counter()
-        baseline_workload()
-        end = time.perf_counter()
-        manager.stop()
-        times.append((end - start) * 1000)
+    profiler = ProfilerManager()
     
-    return sum(times) / len(times)
+    for _ in range(iterations):
+        start = time.perf_counter()
+        profiler.profile_function(run_mlkem, volume=volume, seed=42)
+        end = time.perf_counter()
+        times.append((end - start) * 1000)  # Convert to ms
+    
+    return mean(times)
+
+
+def calculate_overhead(baseline: float, profiled: float) -> float:
+    """
+    Calculate overhead percentage.
+    
+    Args:
+        baseline: Baseline execution time (ms)
+        profiled: Profiled execution time (ms)
+        
+    Returns:
+        Overhead percentage
+    """
+    if baseline == 0:
+        return 0.0
+    return ((profiled - baseline) / baseline) * 100
 
 
 def main():
-    """Executa medição e reporta overhead."""
-    print("Medindo baseline (sem profiling)...")
-    baseline_avg = measure_baseline()
-    print(f"  Baseline: {baseline_avg:.2f} ms")
+    """Run overhead measurement and report results."""
+    import argparse
     
-    print("\nMedindo com profiling...")
-    profiled_avg = measure_with_profiling()
-    print(f"  Com profiling: {profiled_avg:.2f} ms")
+    parser = argparse.ArgumentParser(description="Measure profiling overhead")
+    parser.add_argument("--iterations", "-i", type=int, default=10,
+                       help="Number of iterations to average")
+    parser.add_argument("--volume", "-v", type=int, default=100,
+                       help="Number of operations per iteration")
     
-    overhead_ms = profiled_avg - baseline_avg
-    overhead_pct = (overhead_ms / baseline_avg) * 100
+    args = parser.parse_args()
     
-    print(f"\n=== Overhead de Profiling ===")
-    print(f"Absoluto: {overhead_ms:.2f} ms")
-    print(f"Relativo: {overhead_pct:.2f}%")
+    print(f"\n{'='*60}")
+    print("PROFILING OVERHEAD MEASUREMENT")
+    print(f"{'='*60}")
+    print(f"Algorithm: MLKEM_1024")
+    print(f"Iterations: {args.iterations}")
+    print(f"Volume: {args.volume}")
+    print(f"{'='*60}\n")
+    
+    print("Measuring baseline (without profiling)...")
+    baseline_avg = measure_baseline(args.iterations, args.volume)
+    print(f"  Baseline average: {baseline_avg:.2f} ms")
+    
+    print("\nMeasuring with profiling...")
+    profiled_avg = measure_with_profiling(args.iterations, args.volume)
+    print(f"  Profiled average: {profiled_avg:.2f} ms")
+    
+    overhead_pct = calculate_overhead(baseline_avg, profiled_avg)
+    
+    print(f"\n{'='*60}")
+    print(f"OVERHEAD: {overhead_pct:.2f}%")
     
     if overhead_pct < 10:
-        print(f"✓ PASS: Overhead < 10% (Princípio IV OK)")
+        print("✓ Within constitutional limits (<10%)")
+        status = 0
     else:
-        print(f"✗ FAIL: Overhead >= 10% (Princípio IV violado)")
-        print("  Revisar instrumentação para reduzir impacto")
+        print("✗ EXCEEDS constitutional limits!")
+        status = 1
     
-    return overhead_pct
+    print(f"{'='*60}\n")
+    
+    return status
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

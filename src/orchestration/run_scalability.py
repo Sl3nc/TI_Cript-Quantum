@@ -7,6 +7,12 @@ from typing import Dict, Any, List
 from datetime import datetime
 from pathlib import Path
 import logging
+import sys
+
+# Adiciona o diretório raiz ao path para permitir importações
+ROOT_DIR = Path(__file__).resolve().parent.parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
 
 from src.orchestration.run_single import run_single
 from src.metrics.aggregator import aggregate_series
@@ -258,3 +264,46 @@ def _generate_comparative_report(
     logger.info(f"Generated comparative report: {report_path}")
     
     return report_path
+
+
+if __name__ == "__main__":
+    # Configurar logging para execução direta
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s [%(levelname)s] %(message)s"
+    )
+    
+    # Exemplo de execução
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Execute análise de escalabilidade de algoritmo")
+    parser.add_argument("--algorithm", "-a", default="MLKEM_1024", 
+                       choices=list(ALGORITHMS.keys()),
+                       help="Algoritmo a executar")
+    parser.add_argument("--volumes", "-v", nargs="+", type=int,
+                       default=[100, 500, 1000],
+                       help="Lista de volumes a testar (ex: 100 500 1000)")
+    parser.add_argument("--seed", "-s", type=int, default=SEED,
+                       help="Seed para reprodutibilidade")
+    
+    args = parser.parse_args()
+    
+    print(f"\n{'='*60}")
+    print(f"Análise de Escalabilidade: {args.algorithm}")
+    print(f"Volumes: {args.volumes}")
+    print(f"Seed: {args.seed}")
+    print(f"{'='*60}\n")
+    
+    result = run_scalability(
+        algorithm=args.algorithm,
+        volumes=args.volumes,
+        seed=args.seed
+    )
+    
+    print(f"\n{'='*60}")
+    print(f"✓ Análise concluída!")
+    print(f"Status: {result['status']}")
+    print(f"Volumes testados: {len(result['evaluations'])}")
+    if "report_path" in result:
+        print(f"Relatório: {result['report_path']}")
+    print(f"{'='*60}\n")

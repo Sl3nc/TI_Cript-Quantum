@@ -8,7 +8,16 @@ from typing import Dict, Any
 from datetime import datetime
 from pathlib import Path
 import logging
-import time
+import argparse
+import sys
+
+ROOT_DIR = Path(__file__[0:__file__.find('\\src')]).__str__()
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
+from src.algorithms.mlkem_kem import run_mlkem
+from src.algorithms.mldsa_dss import generate_and_sign
+from src.algorithms.krypton_cipher import cipher_rounds
 
 from src.metrics import ProfilerManager
 from src.metrics.aggregator import aggregate
@@ -62,12 +71,12 @@ def run_single(
     
     # Importar função específica do algoritmo
     algorithm_functions = {
-        "MLKEM_1024": _import_mlkem,
-        "MLDSA_87": _import_mldsa,
-        "Krypton": _import_krypton
+        "MLKEM_1024": run_mlkem,
+        "MLDSA_87": generate_and_sign,
+        "Krypton": cipher_rounds
     }
     
-    algo_func = algorithm_functions[algorithm]()
+    algo_func = algorithm_functions[algorithm]
     
     # Timestamps
     started_at = datetime.now()
@@ -133,24 +142,6 @@ def run_single(
             "notes": f"Error: {str(e)}",
             "seed": seed
         }
-
-
-def _import_mlkem():
-    """Importa função MLKEM_1024."""
-    from src.algorithms.mlkem_kem import run_mlkem
-    return run_mlkem
-
-
-def _import_mldsa():
-    """Importa função MLDSA_87."""
-    from src.algorithms.mldsa_dss import generate_and_sign
-    return generate_and_sign
-
-
-def _import_krypton():
-    """Importa função Krypton."""
-    from src.algorithms.krypton_cipher import cipher_rounds
-    return cipher_rounds
 
 
 def _generate_report(evaluation: Dict[str, Any], raw_metrics: Dict[str, Any]) -> tuple[Path, list[Path]]:
@@ -225,3 +216,42 @@ def _generate_report(evaluation: Dict[str, Any], raw_metrics: Dict[str, Any]) ->
     logger.info(f"action=report_generated path={report_path} images={len(image_paths)}")
     
     return report_path, image_paths
+
+
+if __name__ == "__main__":
+    # Configurar logging para execução direta
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s [%(levelname)s] %(message)s"
+    )
+    
+    parser = argparse.ArgumentParser(description="Execute uma avaliação única de algoritmo")
+    parser.add_argument("--algorithm", "-a", default="MLKEM_1024", 
+                       choices=list(ALGORITHMS.keys()),
+                       help="Algoritmo a executar")
+    parser.add_argument("--volume", "-v", type=int, default=DEFAULT_VOLUME,
+                       help="Número de operações")
+    parser.add_argument("--seed", "-s", type=int, default=SEED,
+                       help="Seed para reprodutibilidade")
+    
+    args = parser.parse_args()
+    
+    print(f"\n{'='*60}")
+    print(f"Executando: {args.algorithm}")
+    print(f"Volume: {args.volume}")
+    print(f"Seed: {args.seed}")
+    print(f"{'='*60}\n")
+    
+    result = run_single(
+        algorithm=args.algorithm,
+        volume=args.volume,
+        seed=args.seed
+    )
+    
+    print(f"\n{'='*60}")
+    print(f"✓ Execução concluída!")
+    print(f"Status: {result['status']}")
+    print(f"Duração: {result['duration_ms']:.2f} ms")
+    if "report_path" in result:
+        print(f"Relatório: {result['report_path']}")
+    print(f"{'='*60}\n")

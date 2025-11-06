@@ -19,8 +19,19 @@ def start_cpu_profile() -> cProfile.Profile:
     """
     logger.debug("action=start_cpu_profile status=initiated")
     profiler = cProfile.Profile()
-    profiler.enable()
-    logger.debug("action=start_cpu_profile status=enabled")
+    try:
+        profiler.enable()
+        logger.debug("action=start_cpu_profile status=enabled")
+    except ValueError as e:
+        # Se já houver um profiler ativo, desabilitar e tentar novamente
+        logger.warning(f"Profiler already active, attempting to clear: {e}")
+        try:
+            profiler.disable()
+        except:
+            pass
+        profiler = cProfile.Profile()
+        profiler.enable()
+        logger.debug("action=start_cpu_profile status=enabled_after_clear")
     return profiler
 
 
