@@ -33,7 +33,7 @@ def cipher_rounds(volume: int, seed: int = 42) -> Dict[str, Any]:
     if volume <= 0:
         raise ValueError(f"volume must be greater than 0, got {volume}")
     
-    logger.info(f"action=cipher_rounds_start volume={volume} seed={seed}")
+    logger.info(f"action=Krypton: START volume={volume} seed={seed}")
     plaintext = b"Hello World"
         
     # Simular cifragens
@@ -58,5 +58,5 @@ def cipher_rounds(volume: int, seed: int = 42) -> Dict[str, Any]:
         "seed": seed
     }
     
-    logger.info(f"action=cipher_rounds_complete operations={volume}")
+    logger.info(f"action=Krypton: COMPLETE operations={volume}")
     return result

@@ -52,17 +52,9 @@ def run_scalability(
         ValueError: Se algorithm inválido ou volumes vazio
     """
     # Validações
-    if algorithm not in ALGORITHMS:
-        valid_algos = ", ".join(ALGORITHMS.keys())
-        raise ValueError(f"Unknown algorithm '{algorithm}'. Valid options: {valid_algos}")
+    validate_volumes(algorithm, volumes)
     
-    if not volumes:
-        raise ValueError("volumes list must not be empty")
-    
-    if any(v <= 0 for v in volumes):
-        raise ValueError("All volumes must be greater than 0")
-    
-    logger.info(f"action=run_scalability_start algorithm={algorithm} volumes={volumes} seed={seed}")
+    logger.info(f"action=run_scalability: START algorithm={algorithm} volumes={volumes} seed={seed}")
     
     started_at = datetime.now()
     series_id = f"{algorithm}_scalability_{started_at.strftime('%Y%m%d_%H%M%S_%f')}"
@@ -73,7 +65,7 @@ def run_scalability(
     individual_reports = []
     
     for idx, volume in enumerate(volumes):
-        logger.info(f"action=run_volume volume={volume} index={idx+1}/{len(volumes)}")
+        logger.info(f"action=simgle: START volume={volume} index={idx+1}/{len(volumes)}")
         
         try:
             # Usar seed incremental para cada volume
@@ -88,7 +80,7 @@ def run_scalability(
             individual_reports.append(eval_result["report_path"])
             
         except Exception as e:
-            logger.error(f"action=volume_failed volume={volume} error={str(e)}")
+            logger.error(f"action=single FAILED volume={volume} error={str(e)}")
             
             # Criar avaliação com status failed
             failed_eval = {
@@ -141,6 +133,17 @@ def run_scalability(
     logger.info(f"action=run_scalability_complete id={series_id} status={status} duration_ms={duration_ms:.2f}")
     
     return result
+
+def validate_volumes(algorithm, volumes):
+    if algorithm not in ALGORITHMS:
+        valid_algos = ", ".join(ALGORITHMS.keys())
+        raise ValueError(f"Unknown algorithm '{algorithm}'. Valid options: {valid_algos}")
+    
+    if not volumes:
+        raise ValueError("volumes list must not be empty")
+    
+    if any(v <= 0 for v in volumes):
+        raise ValueError("All volumes must be greater than 0")
 
 
 def _generate_comparison_graphs(

@@ -33,7 +33,7 @@ def run_mlkem(volume: int, seed: int = 42) -> Dict[str, Any]:
     if volume <= 0:
         raise ValueError(f"volume must be greater than 0, got {volume}")
     
-    logger.info(f"action=run_mlkem_start volume={volume} seed={seed}")
+    logger.info(f"action=KEM: START volume={volume} seed={seed}")
     kem = MLKEM_1024()
         
     # Simular execuções
@@ -50,5 +50,5 @@ def run_mlkem(volume: int, seed: int = 42) -> Dict[str, Any]:
         "seed": seed
     }
     
-    logger.info(f"action=run_mlkem_complete operations={volume}")
+    logger.info(f"action=KEM: COMPLETE operations={volume}")
     return result
