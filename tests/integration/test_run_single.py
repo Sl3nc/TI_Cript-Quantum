@@ -9,7 +9,7 @@ def test_run_single_end_to_end():
     """
     Testa execução completa: algoritmo → métricas → resultado.
     """
-    from src.orchestration.run_single import run_single
+    from orchestration.single import run_single
     
     result = run_single(algorithm="MLKEM_1024", volume=100, seed=42)
     
@@ -36,7 +36,7 @@ def test_run_single_collects_minimum_metrics():
     
     Métricas obrigatórias: cpu_time, memory, cpu_cycles, hardware_info
     """
-    from src.orchestration.run_single import run_single
+    from orchestration.single import run_single
     
     result = run_single(algorithm="Krypton", volume=50, seed=99)
     
@@ -61,7 +61,7 @@ def test_run_single_collects_minimum_metrics():
 
 def test_run_single_validates_algorithm():
     """Verifica que run_single rejeita algoritmo inválido."""
-    from src.orchestration.run_single import run_single
+    from orchestration.single import run_single
     
     with pytest.raises(ValueError, match="Unknown algorithm"):
         run_single(algorithm="INVALID_ALGO", volume=100)
@@ -69,7 +69,7 @@ def test_run_single_validates_algorithm():
 
 def test_run_single_validates_volume():
     """Verifica que run_single propaga validação de volume."""
-    from src.orchestration.run_single import run_single
+    from orchestration.single import run_single
     
     with pytest.raises(ValueError, match="volume.*must be.*greater than 0"):
         run_single(algorithm="MLKEM_1024", volume=0)
@@ -77,7 +77,7 @@ def test_run_single_validates_volume():
 
 def test_run_single_different_algorithms():
     """Testa que os 3 algoritmos podem ser executados."""
-    from src.orchestration.run_single import run_single
+    from orchestration.single import run_single
     
     algorithms = ["MLKEM_1024", "MLDSA_87", "Krypton"]
     

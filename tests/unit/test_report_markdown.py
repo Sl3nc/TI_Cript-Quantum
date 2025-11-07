@@ -4,7 +4,7 @@ Testes unitários para report_markdown.
 import pytest
 from pathlib import Path
 import tempfile
-from src.metrics.report_markdown import build_report, build_series_report
+from visualize.report_markdown import build_report, build_series_report
 
 
 def test_build_report_creates_file():

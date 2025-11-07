@@ -2,7 +2,7 @@
 Testes unitários para profiler_cpu.
 """
 import pytest
-from src.metrics.profiler_cpu import start_cpu_profile, stop_cpu_profile, profile_lines
+from metrics.profile.cpu import start_cpu_profile, stop_cpu_profile, profile_lines
 
 
 def test_start_cpu_profile_returns_profiler():

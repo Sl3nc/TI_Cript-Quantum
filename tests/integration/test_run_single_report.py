@@ -13,8 +13,8 @@ def test_run_single_generates_complete_report():
     
     Este teste valida integração completa US1 + US2.
     """
-    from src.orchestration.run_single import run_single
-    from src.orchestration.config import RESULTS_DIR
+    from orchestration.single import run_single
+    from config import RESULTS_DIR
     
     # Executar avaliação
     result = run_single(algorithm="MLKEM_1024", volume=50, seed=42)
@@ -51,7 +51,7 @@ def test_run_single_generates_complete_report():
 
 def test_report_naming_includes_timestamp():
     """Verifica que nome do relatório inclui timestamp PT-BR."""
-    from src.orchestration.run_single import run_single
+    from orchestration.single import run_single
     
     result = run_single(algorithm="Krypton", volume=10, seed=99)
     
@@ -72,7 +72,7 @@ def test_report_uniqueness_on_rapid_execution():
     
     Testa constraint de milissegundos para unicidade (Research decision #6).
     """
-    from src.orchestration.run_single import run_single
+    from orchestration.single import run_single
     import time
     
     results = []
@@ -93,7 +93,7 @@ def test_report_uniqueness_on_rapid_execution():
 
 def test_report_includes_hardware_metadata():
     """Verifica que relatório inclui metadados de hardware."""
-    from src.orchestration.run_single import run_single
+    from orchestration.single import run_single
     
     result = run_single(algorithm="MLKEM_1024", volume=20, seed=42)
     

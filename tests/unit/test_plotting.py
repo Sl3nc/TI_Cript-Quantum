@@ -4,7 +4,7 @@ Testes unitários para plotting.
 import pytest
 from pathlib import Path
 import tempfile
-from src.metrics.plotting import plot_time_series, plot_memory_series, plot_scalability
+from visualize.plotting import plot_time_series, plot_memory_series, plot_scalability
 
 
 def test_plot_time_series_creates_image():

@@ -9,7 +9,7 @@ def test_run_scalability_multiple_volumes():
     """
     Testa execução de múltiplos volumes e geração de relatório comparativo.
     """
-    from src.orchestration.run_scalability import run_scalability
+    from orchestration.scalability import run_scalability
     
     volumes = [10, 50, 100]
     
@@ -47,7 +47,7 @@ def test_run_scalability_multiple_volumes():
 
 def test_run_scalability_generates_comparison_graphs():
     """Verifica que gráficos comparativos são gerados."""
-    from src.orchestration.run_scalability import run_scalability
+    from orchestration.scalability import run_scalability
     
     result = run_scalability(
         algorithm="Krypton",
@@ -69,7 +69,7 @@ def test_run_scalability_generates_comparison_graphs():
 
 def test_run_scalability_aggregates_metrics():
     """Verifica que métricas são agregadas corretamente."""
-    from src.orchestration.run_scalability import run_scalability
+    from orchestration.scalability import run_scalability
     
     result = run_scalability(
         algorithm="MLDSA_87",
@@ -95,7 +95,7 @@ def test_run_scalability_handles_partial_failure():
     """
     Testa manejo de falha parcial: alguns volumes falham, outros passam.
     """
-    from src.orchestration.run_scalability import run_scalability
+    from orchestration.scalability import run_scalability
     
     # Usar volume 0 que deve falhar por validação
     # Mas implementação deve capturar e marcar como failed
@@ -121,7 +121,7 @@ def test_run_scalability_handles_partial_failure():
 
 def test_run_scalability_validates_empty_volumes():
     """Verifica que lista vazia de volumes é rejeitada."""
-    from src.orchestration.run_scalability import run_scalability
+    from orchestration.scalability import run_scalability
     
     with pytest.raises(ValueError, match="volumes.*empty"):
         run_scalability(algorithm="MLKEM_1024", volumes=[], seed=42)
@@ -129,7 +129,7 @@ def test_run_scalability_validates_empty_volumes():
 
 def test_run_scalability_comparative_report_content():
     """Verifica conteúdo do relatório comparativo."""
-    from src.orchestration.run_scalability import run_scalability
+    from orchestration.scalability import run_scalability
     
     result = run_scalability(
         algorithm="Krypton",

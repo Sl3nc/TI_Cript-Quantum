@@ -2,7 +2,7 @@
 Teste de integração do fluxo completo de métricas.
 """
 import pytest
-from src.metrics import ProfilerManager
+from metrics.profile.manager import ProfilerManager
 
 
 def test_profiler_manager_complete_flow():

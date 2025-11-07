@@ -3,7 +3,7 @@ Testes unitários para system_stats.
 """
 import pytest
 import time
-from src.metrics.system_stats import SystemSampler, SystemStatSample
+from metrics.system_sampler import SystemSampler, SystemStatSample
 
 
 def test_system_sampler_start():

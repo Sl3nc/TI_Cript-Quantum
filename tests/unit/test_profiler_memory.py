@@ -2,7 +2,7 @@
 Testes unitários para profiler_memory.
 """
 import pytest
-from src.metrics.profiler_memory import trace_memory
+from metrics.profile.memory import trace_memory
 
 
 def test_trace_memory_structure():

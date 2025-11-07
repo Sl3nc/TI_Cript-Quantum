@@ -2,7 +2,7 @@
 Agregação de métricas de múltiplas execuções.
 """
 from typing import List, Dict, Any
-
+from statistics import mean, stdev
 
 def aggregate(metrics_list: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
@@ -84,12 +84,9 @@ def aggregate_series(evaluations: List[Dict[str, Any]]) -> Dict[str, Any]:
         metrics = eval_item.get("metrics", {})
         cpu_times.append(metrics.get("cpu_time_ms", 0.0))
         memory_peaks.append(metrics.get("memory_mb", 0.0))
-    
-    # Calcular agregados
-    import statistics
-    
-    cpu_time_avg = statistics.mean(cpu_times) if cpu_times else 0.0
-    cpu_time_std = statistics.stdev(cpu_times) if len(cpu_times) > 1 else 0.0
+        
+    cpu_time_avg = mean(cpu_times) if cpu_times else 0.0
+    cpu_time_std = stdev(cpu_times) if len(cpu_times) > 1 else 0.0
     memory_peak = max(memory_peaks) if memory_peaks else 0.0
     
     return {

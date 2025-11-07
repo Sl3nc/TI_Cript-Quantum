@@ -8,7 +8,7 @@ import tempfile
 
 def test_build_report_creates_markdown_file():
     """Verifica que build_report cria arquivo .md."""
-    from src.metrics.report_markdown import build_report
+    from visualize.report_markdown import build_report
     
     with tempfile.TemporaryDirectory() as tmpdir:
         output_path = Path(tmpdir) / "report.md"
@@ -53,7 +53,7 @@ def test_build_report_creates_markdown_file():
 
 def test_build_report_includes_hardware_section():
     """Verifica que relatório inclui seção de hardware."""
-    from src.metrics.report_markdown import build_report
+    from visualize.report_markdown import build_report
     
     with tempfile.TemporaryDirectory() as tmpdir:
         output_path = Path(tmpdir) / "hw_report.md"
@@ -81,7 +81,7 @@ def test_build_report_includes_hardware_section():
 
 def test_build_report_formats_metrics_table():
     """Verifica formatação de métricas em tabela."""
-    from src.metrics.report_markdown import build_report
+    from visualize.report_markdown import build_report
     
     with tempfile.TemporaryDirectory() as tmpdir:
         output_path = Path(tmpdir) / "metrics_report.md"

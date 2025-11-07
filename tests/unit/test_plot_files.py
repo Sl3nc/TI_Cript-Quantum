@@ -8,7 +8,7 @@ import tempfile
 
 def test_plot_time_series_creates_png():
     """Verifica que plot_time_series gera arquivo PNG válido."""
-    from src.metrics.plotting import plot_time_series
+    from visualize.plotting import plot_time_series
     
     with tempfile.TemporaryDirectory() as tmpdir:
         output_path = Path(tmpdir) / "time_plot.png"
@@ -33,7 +33,7 @@ def test_plot_time_series_creates_png():
 
 def test_plot_memory_series_creates_png():
     """Verifica que plot_memory_series gera PNG."""
-    from src.metrics.plotting import plot_memory_series
+    from visualize.plotting import plot_memory_series
     
     with tempfile.TemporaryDirectory() as tmpdir:
         output_path = Path(tmpdir) / "memory_plot.png"
@@ -48,7 +48,7 @@ def test_plot_memory_series_creates_png():
 
 def test_plot_scalability_creates_bar_chart():
     """Verifica que plot_scalability gera gráfico de barras."""
-    from src.metrics.plotting import plot_scalability
+    from visualize.plotting import plot_scalability
     
     with tempfile.TemporaryDirectory() as tmpdir:
         output_path = Path(tmpdir) / "scalability.png"
@@ -67,7 +67,7 @@ def test_plot_scalability_creates_bar_chart():
 
 def test_plots_handle_empty_data_gracefully():
     """Verifica comportamento com dados vazios."""
-    from src.metrics.plotting import plot_time_series
+    from visualize.plotting import plot_time_series
     
     with tempfile.TemporaryDirectory() as tmpdir:
         output_path = Path(tmpdir) / "empty.png"
