@@ -6,7 +6,10 @@ from pathlib import Path
 from typing import List, Dict, Any
 
 class Plotting:
-    def plot_time_series(self, timestamps: List[float], values: List[float], output_path: Path, 
+    def __init__(self) -> None:
+        pass
+
+    def plot_time_series(self, timestamps: List[int], values: List[float], output_path: Path, 
                         title: str = "Time Series", ylabel: str = "Value") -> None:
         """
         Gera gráfico de linha para série temporal.
