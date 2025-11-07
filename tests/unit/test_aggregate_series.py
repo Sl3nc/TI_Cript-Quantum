@@ -6,7 +6,7 @@ import pytest
 
 def test_aggregate_series_calculates_averages():
     """Verifica cálculo de médias através de múltiplas avaliações."""
-    from src.metrics.aggregator import aggregate_series
+    from metrics.aggregator import aggregate_series
     
     evaluations = [
         {
@@ -50,7 +50,7 @@ def test_aggregate_series_calculates_averages():
 
 def test_aggregate_series_handles_failures():
     """Verifica cálculo de success_rate com falhas."""
-    from src.metrics.aggregator import aggregate_series
+    from metrics.aggregator import aggregate_series
     
     evaluations = [
         {"status": "success", "volume": 100, "metrics": {"cpu_time_ms": 50.0, "memory_mb": 10.0}},
@@ -72,7 +72,7 @@ def test_aggregate_series_handles_failures():
 
 def test_aggregate_series_calculates_std_deviation():
     """Verifica cálculo de desvio padrão."""
-    from src.metrics.aggregator import aggregate_series
+    from metrics.aggregator import aggregate_series
     
     evaluations = [
         {"status": "success", "volume": 100, "metrics": {"cpu_time_ms": 100.0, "memory_mb": 20.0}},
@@ -92,7 +92,7 @@ def test_aggregate_series_calculates_std_deviation():
 
 def test_aggregate_series_empty_list():
     """Verifica comportamento com lista vazia."""
-    from src.metrics.aggregator import aggregate_series
+    from metrics.aggregator import aggregate_series
     
     result = aggregate_series([])
     

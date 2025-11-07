@@ -5,7 +5,7 @@ from typing import Dict, Any, Callable
 from memory_profiler import memory_usage
 
 class Memory:
-    def trace(func: Callable, *args, **kwargs) -> Dict[str, Any]:
+    def trace(self, func: Callable, *args, **kwargs) -> Dict[str, Any]:
         """
         Rastreia consumo de memória durante execução.
         

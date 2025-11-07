@@ -2,7 +2,7 @@
 Testes unitários para aggregator.
 """
 import pytest
-from src.metrics.aggregator import aggregate, aggregate_series
+from metrics.aggregator import aggregate, aggregate_series
 
 
 def test_aggregate_structure():

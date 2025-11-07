@@ -10,7 +10,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 class CPU:
-    def start() -> cProfile.Profile:
+    def start(self) -> cProfile.Profile:
         """
         Inicia profiling de CPU com cProfile.
         
@@ -35,7 +35,7 @@ class CPU:
         return profiler
 
 
-    def stop(profiler: cProfile.Profile) -> Dict[str, Any]:
+    def stop(self, profiler: cProfile.Profile) -> Dict[str, Any]:
         """Finaliza o profiling e extrai métricas reais de CPU.
 
         Args:
@@ -85,7 +85,7 @@ class CPU:
         }
 
 
-    def profile_lines(func, *args, **kwargs) -> Dict[str, Any]:
+    def profile_lines(self, func, *args, **kwargs) -> Dict[str, Any]:
         """
         Perfila linhas críticas usando line_profiler.
         

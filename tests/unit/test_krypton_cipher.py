@@ -2,11 +2,11 @@
 Testes unitários para Krypton Cipher.
 """
 from pytest import raises
-from src.algorithms.krypton_cipher import cipher_rounds
+from algorithms.krypton_cipher import cipher_rounds
 
 def test_cipher_rounds_validates_volume():
     """Verifica que cipher_rounds rejeita volume <= 0."""
-    from src.algorithms.krypton_cipher import cipher_rounds
+    from algorithms.krypton_cipher import cipher_rounds
     
     # Volume zero deve lançar erro
     with raises(ValueError, match="volume.*must be.*greater than 0"):

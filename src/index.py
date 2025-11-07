@@ -1,6 +1,6 @@
 from logging import INFO, basicConfig
 from argparse import ArgumentParser
-from config import DEFAULT_VOLUME, SEED, ALGORITHMS, RESULTS_DIR, ALGORITHMS_FUNCTIONS, DEFAULT_ALGORITM
+from config import DEFAULT_VOLUME, SEED, ALGORITHMS, DEFAULT_ALGORITM
 from orchestration.single import Single
 
 if __name__ == "__main__":

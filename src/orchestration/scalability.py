@@ -7,15 +7,9 @@ from typing import Dict, Any, List
 from datetime import datetime
 from pathlib import Path
 import logging
-import sys
 
-# Adiciona o diretório raiz ao path para permitir importações
-ROOT_DIR = Path(__file__).resolve().parent.parent.parent
-if str(ROOT_DIR) not in sys.path:
-    sys.path.insert(0, str(ROOT_DIR))
-
-from orchestration.single import run_single
-from src.metrics.aggregator import aggregate_series
+from orchestration.single import Single
+from metrics.aggregator import aggregate_series
 from visualize.report_markdown import build_series_report
 from visualize.plotting import plot_scalability
 from config import SEED, ALGORITHMS, RESULTS_DIR
@@ -56,6 +50,7 @@ def run_scalability(
     
     logger.info(f"action=run_scalability: START algorithm={algorithm} volumes={volumes} seed={seed}")
     
+    single = Single()
     started_at = datetime.now()
     series_id = f"{algorithm}_scalability_{started_at.strftime('%Y%m%d_%H%M%S_%f')}"
     
@@ -69,7 +64,7 @@ def run_scalability(
         
         try:
             # Usar seed incremental para cada volume
-            eval_result = run_single(
+            eval_result = single.run(
                 algorithm=algorithm,
                 volume=volume,
                 seed=seed + idx
@@ -290,6 +285,10 @@ if __name__ == "__main__":
                        help="Seed para reprodutibilidade")
     
     args = parser.parse_args()
+
+    print(args.volumes)
+    from time import sleep
+    sleep(1000)
     
     print(f"\n{'='*60}")
     print(f"Análise de Escalabilidade: {args.algorithm}")

@@ -7,20 +7,13 @@ User Story 2: Gerar relatório Markdown individual.
 from typing import Dict, Any
 from datetime import datetime
 from pathlib import Path
-from logging import getLogger, INFO, basicConfig
-from argparse import ArgumentParser
-from sys import path
-from config import PROJECT_ROOT
-
-if str(PROJECT_ROOT) not in path:
-    path.insert(0, str(PROJECT_ROOT))
-
+from logging import getLogger
 from metrics.profile.manager import ProfilerManager
-from src.metrics.aggregator import aggregate
+from metrics.aggregator import aggregate
 from visualize.report_markdown import ReportMarkdown
 from visualize.plotting import Plotting
 from visualize.report_markdown import ReportMarkdown
-from config import DEFAULT_VOLUME, SEED, ALGORITHMS, RESULTS_DIR, ALGORITHMS_FUNCTIONS, DEFAULT_ALGORITM
+from config import DEFAULT_VOLUME, SEED, ALGORITHMS, RESULTS_DIR
 
 logger = getLogger(__name__)
 
@@ -62,7 +55,7 @@ class Single:
         """
         self.validate_data(algorithm, volume)
         
-        algo_func = ALGORITHMS_FUNCTIONS[algorithm]
+        algo_func = ALGORITHMS[algorithm]
         
         started_at = datetime.now()
         evaluation_id = f"{algorithm}_{started_at.strftime('%Y%m%d_%H%M%S_%f')}"
@@ -127,7 +120,7 @@ class Single:
                 "seed": seed
             }
 
-    def validate_data(algorithm, volume):
+    def validate_data(self, algorithm, volume):
         if algorithm not in ALGORITHMS:
             valid_algos = ", ".join(ALGORITHMS.keys())
             raise ValueError(f"Unknown algorithm '{algorithm}'. Valid options: {valid_algos}")

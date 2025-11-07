@@ -7,7 +7,7 @@ import tabulate
 from datetime import datetime
 
 class ReportMarkdown:
-    def build_report(evaluation: Dict[str, Any], output_path: Path, image_paths: List[Path] = None) -> None:
+    def build_report(self, evaluation: Dict[str, Any], output_path: Path, image_paths: List[Path] = None) -> None:
         """
         Gera relatório Markdown individual completo.
         
@@ -79,7 +79,7 @@ class ReportMarkdown:
             metrics_data = [
                 ["CPU Time", f"{metrics.get('cpu_time_ms', 0):.2f} ms"],
                 ["Memory Peak", f"{metrics.get('memory_mb', 0):.2f} MB"],
-                ["CPU Cycles", _format_metric(metrics.get('cpu_cycles'))],
+                ["CPU Cycles", self._format_metric(metrics.get('cpu_cycles'))],
             ]
             
             table = tabulate.tabulate(
@@ -124,7 +124,7 @@ class ReportMarkdown:
         output_path.write_text(content, encoding='utf-8')
 
 
-    def _format_metric(value) -> str:
+    def _format_metric(self, value) -> str:
         """Formata métrica, tratando None."""
         if value is None:
             return "N/A (indisponível)"
@@ -133,7 +133,7 @@ class ReportMarkdown:
         return str(value)
 
 
-    def build_series_report(series: Dict[str, Any], output_path: Path, image_paths: List[Path]) -> None:
+    def build_series_report(self, series: Dict[str, Any], output_path: Path, image_paths: List[Path]) -> None:
         """
         Gera relatório comparativo de escalabilidade.
         

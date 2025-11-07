@@ -2,7 +2,7 @@
 Testes unitários para MLDSA_87 DSS.
 """
 from pytest import raises
-from src.algorithms.mldsa_dss import generate_and_sign
+from algorithms.mldsa_dss import generate_and_sign
 
 def test_generate_and_sign_validates_volume():
     """Verifica que generate_and_sign rejeita volume <= 0."""

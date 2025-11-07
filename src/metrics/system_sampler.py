@@ -3,7 +3,7 @@ Estatísticas de sistema (CPU, processos) usando psutil.
 """
 import psutil
 from typing import Optional, Dict, List
-from system_stat_sample import SystemStatSample
+from metrics.system_stat_sample import SystemStatSample
 import time
 import logging
 import platform
@@ -69,7 +69,7 @@ class SystemSampler:
                 logger.warning(f"Failed to initialize perf counters: {e}")
                 self._perf_counters = None
 
-    def _get_windows_cycles() -> Optional[int]:
+    def _get_windows_cycles(self) -> Optional[int]:
         """Obtém contagem de ciclos no Windows usando QueryPerformanceCounter."""
         if not _windows_perf_available:
             return None

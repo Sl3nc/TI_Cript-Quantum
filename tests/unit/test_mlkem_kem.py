@@ -2,7 +2,7 @@
 Testes unitários para MLKEM_1024 KEM.
 """
 from pytest import raises
-from src.algorithms.mlkem_kem import run_mlkem
+from algorithms.mlkem_kem import run_mlkem
 
 def test_run_mlkem_validates_volume():
     """Verifica que run_mlkem rejeita volume <= 0."""

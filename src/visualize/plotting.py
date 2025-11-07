@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import List, Dict, Any
 
 class Plotting:
-    def plot_time_series(timestamps: List[float], values: List[float], output_path: Path, 
+    def plot_time_series(self, timestamps: List[float], values: List[float], output_path: Path, 
                         title: str = "Time Series", ylabel: str = "Value") -> None:
         """
         Gera gráfico de linha para série temporal.
@@ -39,7 +39,7 @@ class Plotting:
         plt.close(fig)
 
 
-    def plot_memory_series(memory_samples: List[float], output_path: Path) -> None:
+    def plot_memory_series(self, memory_samples: List[float], output_path: Path) -> None:
         """
         Gera gráfico de linha para consumo de memória.
         
@@ -71,7 +71,7 @@ class Plotting:
         plt.close(fig)
 
 
-    def plot_scalability(volumes: List[int], metrics: Dict[str, List[float]], 
+    def plot_scalability(self, volumes: List[int], metrics: Dict[str, List[float]], 
                         output_path: Path, metric_name: str = "Metric") -> None:
         """
         Gera gráfico de barras comparativo para escalabilidade.
