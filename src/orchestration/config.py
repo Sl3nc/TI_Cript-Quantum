@@ -17,7 +17,7 @@ from src.algorithms.krypton_cipher import cipher_rounds
 
 # Parâmetros de execução
 DEFAULT_ALGORITM = 'KEM'
-DEFAULT_VOLUME = 1000
+DEFAULT_VOLUME = 1
 SEED = 42
 
 # Timestamp format: DD-MM-YYYY HHhMMmSSs.mmm

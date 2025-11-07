@@ -10,9 +10,10 @@ def test_system_sampler_start():
     """Verifica que SystemSampler pode iniciar."""
     sampler = SystemSampler()
     sampler.start()
-    
+    # Dar tempo mínimo para thread coletar ao menos uma amostra
+    time.sleep(0.02)
     assert sampler._sampling is True
-    assert len(sampler.samples) == 0
+    assert len(sampler.samples) >= 1
 
 
 def test_system_sampler_sample_structure():

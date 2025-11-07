@@ -91,7 +91,6 @@ def run_single(
             "seed": seed
         }
         
-        # Gerar relatório com timestamp PT-BR e milissegundos para unicidade
         report_path, image_paths = _generate_report(evaluation, raw_metrics)
         
         evaluation["report_path"] = str(report_path)
@@ -142,14 +141,13 @@ def _generate_report(evaluation: Dict[str, Any], raw_metrics: Dict[str, Any]) ->
     Returns:
         tuple: (report_path, image_paths)
     """
+    image_paths = []
     algorithm = evaluation["algorithm"]
     started_at = datetime.fromisoformat(evaluation["started_at"])
-    
     timestamp_str = started_at.strftime("%d-%m-%Y_%Hh-%Mm")
     
     # Diretório específico do algoritmo
     algo_dir = RESULTS_DIR / algorithm / timestamp_str
-    
     report_path = algo_dir / f"relatorio.md"
     
     # Verificar colisão (raro mas possível)
@@ -161,9 +159,9 @@ def _generate_report(evaluation: Dict[str, Any], raw_metrics: Dict[str, Any]) ->
     
     algo_dir.mkdir(parents=True, exist_ok=True)
 
-    image_paths = []
     
     memory_increments = raw_metrics.get("memory_metrics", {}).get("memory_increments", [])
+    system_metrics = raw_metrics.get("system_metrics", {})
     
     # Gráfico 1: CPU time (se houver dados de série temporal)
     generate_cpu_time_plot(algo_dir, image_paths, memory_increments)
@@ -198,7 +196,7 @@ def generate_cpu_time_plot(algo_dir, image_paths, memory_increments):
             # Placeholder: usar incrementos de memória como proxy para série temporal
             plot_time_series(
                 timestamps,
-                memory_increments[:50] if len(memory_increments) > 50 else memory_increments,
+                memory_increments,
                 cpu_time_plot,
                 title=f"CPU Time Series",
                 ylabel="Time Offset (arbitrary)"

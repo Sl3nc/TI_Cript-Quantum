@@ -4,7 +4,7 @@ Profiling de CPU usando cProfile e line_profiler.
 import cProfile
 import pstats
 from io import StringIO
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 import logging
 
 logger = logging.getLogger(__name__)
@@ -36,38 +36,52 @@ def start_cpu_profile() -> cProfile.Profile:
 
 
 def stop_cpu_profile(profiler: cProfile.Profile) -> Dict[str, Any]:
-    """
-    Para profiling e extrai métricas de tempo.
-    
+    """Finaliza o profiling e extrai métricas reais de CPU.
+
     Args:
-        profiler: Profiler ativo retornado por start_cpu_profile
-        
+        profiler: Instância ativa de cProfile.
+
     Returns:
         Dict com:
-            - cpu_time_ms: float (tempo total em milissegundos)
-            - cumulative_time_ms: float
-            - primitive_calls: int
-            - total_calls: int
+            cpu_time_ms: Tempo total (soma do tempo interno de cada função) em ms
+            cumulative_time_ms: Maior tempo cumulativo observado (aproxima a duração total) em ms
+            primitive_calls: Chamadas primitivas
+            total_calls: Chamadas totais (inclui recursivas)
     """
     profiler.disable()
     logger.debug("action=stop_cpu_profile status=disabled")
-    
+
     stream = StringIO()
     stats = pstats.Stats(profiler, stream=stream)
-    stats.sort_stats('cumulative')
-    
-    # Extract real metrics
-    total_calls = stats.total_calls if hasattr(stats, 'total_calls') else 0
-    prim_calls = stats.prim_calls if hasattr(stats, 'prim_calls') else 0
-    
-    logger.info(f"action=cpu_profile_stopped primitive_calls={prim_calls} total_calls={total_calls}")
-    
-    # Placeholder: extrair métricas reais do pstats
+    stats.sort_stats("cumulative")
+
+    total_calls = getattr(stats, "total_calls", 0)
+    prim_calls = getattr(stats, "prim_calls", 0)
+
+    total_inline_time = 0.0  
+    max_cum_time = 0.0      
+
+    # stats.stats: {(filename, line, funcname): (prim_calls, total_calls, inline_time, cumulative_time, callers)}
+    for func_key, func_stats in getattr(stats, "stats", {}).items():
+        inline_time = func_stats[2]
+        cumulative_time = func_stats[3]
+        total_inline_time += inline_time
+        if cumulative_time > max_cum_time:
+            max_cum_time = cumulative_time
+
+    cpu_time_ms = total_inline_time * 1000.0
+    cumulative_time_ms = max_cum_time * 1000.0
+
+    logger.info(
+        "action=cpu_profile: STOPPED primitive_calls=%d total_calls=%d cpu_time_ms=%.3f cumulative_time_ms=%.3f",
+        prim_calls, total_calls, cpu_time_ms, cumulative_time_ms
+    )
+
     return {
-        "cpu_time_ms": 0.0,
-        "cumulative_time_ms": 0.0,
-        "primitive_calls": 0,
-        "total_calls": 0
+        "cpu_time_ms": cpu_time_ms,
+        "cumulative_time_ms": cumulative_time_ms,
+        "primitive_calls": prim_calls,
+        "total_calls": total_calls,
     }
 
 
