@@ -1,0 +1,65 @@
+"""
+Testes unitários para system_stats.
+"""
+import pytest
+import time
+from metrics.system_sampler import SystemSampler, SystemStatSample
+
+
+def test_system_sampler_start():
+    """Verifica que SystemSampler pode iniciar."""
+    sampler = SystemSampler()
+    sampler.start()
+    # Dar tempo mínimo para thread coletar ao menos uma amostra
+    time.sleep(0.02)
+    assert sampler._sampling is True
+    assert len(sampler.samples) >= 1
+
+
+def test_system_sampler_sample_structure():
+    """Verifica estrutura de SystemStatSample."""
+    sampler = SystemSampler()
+    sampler.start()
+    
+    sample = sampler.sample()
+    
+    # Verifica campos obrigatórios
+    assert hasattr(sample, 'timestamp')
+    assert hasattr(sample, 'cpu_percent')
+    assert hasattr(sample, 'memory_percent')
+    assert hasattr(sample, 'cpu_cycles')
+    
+    # Timestamp deve ser plausível
+    assert sample.timestamp > 0
+    
+    # CPU e memória devem ser >= 0
+    assert sample.cpu_percent >= 0
+    assert sample.memory_percent >= 0
+    
+    # cpu_cycles pode ser None (se não disponível) ou int
+    assert sample.cpu_cycles is None or isinstance(sample.cpu_cycles, int)
+
+
+def test_system_sampler_stop_aggregates():
+    """Verifica que stop() agrega métricas."""
+    sampler = SystemSampler()
+    sampler.start()
+    
+    # Coleta algumas amostras
+    for _ in range(3):
+        sampler.samples.append(sampler.sample())
+        time.sleep(0.01)
+    
+    aggregated = sampler.stop()
+    
+    # Estrutura esperada
+    assert "cpu_percent_avg" in aggregated
+    assert "memory_percent_max" in aggregated
+    assert "cpu_cycles" in aggregated
+    
+    # Valores devem ser razoáveis
+    assert aggregated["cpu_percent_avg"] >= 0
+    assert aggregated["memory_percent_max"] >= 0
+    
+    # Contadores podem ser None (se não disponíveis) ou int
+    assert aggregated["cpu_cycles"] is None or isinstance(aggregated["cpu_cycles"], int)
