@@ -29,7 +29,7 @@ if platform.system() == "Windows":
         import ctypes
         from ctypes import wintypes
         
-        kernel32 = ctypes.windll.kernel32
+        kernel32 = ctypes.cdll.kernel32
         _qpc_freq = wintypes.LARGE_INTEGER()
         kernel32.QueryPerformanceFrequency(ctypes.byref(_qpc_freq))
         _windows_perf_available = True

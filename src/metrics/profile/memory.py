@@ -1,7 +1,7 @@
 """
 Profiling de memória usando memory_profiler.
 """
-from typing import Dict, Any, Callable
+from typing import Dict, Any, Callable, cast
 from memory_profiler import memory_usage
 
 class Memory:
@@ -20,7 +20,7 @@ class Memory:
                 - result: Any (retorno da função)
         """
         mem_usage, result = memory_usage(
-            (func, args, kwargs),
+            cast(Any, (func, args, kwargs)),
             interval=0.01,
             include_children=True,
             retval=True

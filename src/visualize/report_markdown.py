@@ -7,7 +7,7 @@ import tabulate
 from datetime import datetime
 
 class ReportMarkdown:
-    def build_report(self, evaluation: Dict[str, Any], output_path: Path, image_paths: List[Path] = None) -> None:
+    def build_report(self, evaluation: Dict[str, Any], output_path: Path, image_paths: List[Path] | None = None) -> None:
         """
         Gera relatório Markdown individual completo.
         
