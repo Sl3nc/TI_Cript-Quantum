@@ -2,7 +2,7 @@ from logging import INFO, basicConfig
 from argparse import ArgumentParser
 from config import DEFAULT_VOLUME, SEED, ALGORITHMS, DEFAULT_ALGORITM
 from orchestration.single import Single
-from orchestration.scalability import Scalability
+from orchestration.serialization import Serialization
 
 def cli():
     basicConfig(
@@ -42,7 +42,7 @@ if __name__ == "__main__":
     print(f"Seed: {args.seed}")
     print(f"{'='*60}\n")
     
-    result = Scalability().run(
+    result = Serialization().run(
             algorithm=args.algorithm,
             volumes=args.volume,
             seed=args.seed

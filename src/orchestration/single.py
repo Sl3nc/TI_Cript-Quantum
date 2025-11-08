@@ -4,16 +4,15 @@ Orquestração de execução única de algoritmo com profiling.
 User Story 1: Executar avaliação única com coleta de métricas completas.
 User Story 2: Gerar relatório Markdown individual.
 """
-from typing import Dict, Any
-from datetime import datetime
-from pathlib import Path
-from logging import getLogger
-from metrics.profile.manager import ProfilerManager
-from metrics.aggregator import aggregate
-from visualize.report_markdown import ReportMarkdown
-from visualize.plotting import Plotting
-from visualize.report_markdown import ReportMarkdown
 from config import DEFAULT_VOLUME, SEED, ALGORITHMS, RESULTS_DIR
+from metrics.profile.manager import ProfilerManager
+from visualize.report_markdown import ReportMarkdown
+from metrics.aggregator import aggregate
+from visualize.plotting import Plotting
+from logging import getLogger
+from datetime import datetime
+from typing import Dict, Any
+from pathlib import Path
 
 logger = getLogger(__name__)
 
