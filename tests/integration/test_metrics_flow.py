@@ -2,7 +2,7 @@
 Teste de integração do fluxo completo de métricas.
 """
 import pytest
-from metrics.profile.manager import ProfilerManager
+from metrics.profile.manager import Profiler
 
 
 def test_profiler_manager_complete_flow():
@@ -11,7 +11,7 @@ def test_profiler_manager_complete_flow():
     
     Este teste valida integração entre CPU, memória, sistema, hardware.
     """
-    manager = ProfilerManager()
+    manager = Profiler()
     
     # Função de teste
     def workload():
@@ -21,7 +21,7 @@ def test_profiler_manager_complete_flow():
         return sum(data)
     
     # Fluxo completo
-    result = manager.profile_function(workload)
+    result = manager.execution(workload)
     
     # Estrutura esperada
     assert "result" in result
@@ -63,8 +63,8 @@ def test_profiler_manager_neutrality():
     
     Princípio II da Constituição: métricas padronizadas.
     """
-    manager1 = ProfilerManager()
-    manager2 = ProfilerManager()
+    manager1 = Profiler()
+    manager2 = Profiler()
     
     def fast_workload():
         return sum(range(100))
@@ -72,8 +72,8 @@ def test_profiler_manager_neutrality():
     def slow_workload():
         return sum(range(100000))
     
-    result1 = manager1.profile_function(fast_workload)
-    result2 = manager2.profile_function(slow_workload)
+    result1 = manager1.execution(fast_workload)
+    result2 = manager2.execution(slow_workload)
     
     # Ambos devem ter mesma estrutura de métricas
     assert set(result1["metrics"].keys()) == set(result2["metrics"].keys())
@@ -85,13 +85,13 @@ def test_profiler_manager_neutrality():
 
 def test_profiler_manager_handles_exceptions():
     """Verifica comportamento quando função perfilada lança exceção."""
-    manager = ProfilerManager()
+    manager = Profiler()
     
     def failing_workload():
         raise ValueError("Test exception")
     
     # Deve propagar exceção mas garantir cleanup
     with pytest.raises(ValueError, match="Test exception"):
-        manager.profile_function(failing_workload)
+        manager.execution(failing_workload)
     
     # TODO: Verificar se profilers foram parados corretamente (cleanup)

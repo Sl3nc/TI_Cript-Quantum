@@ -1,8 +1,9 @@
+from config import DEFAULT_VOLUME, ALGORITHMS, DEFAULT_ALGORITM, DEVELOP_DIR
+from orchestration.serialization import Serialization
+from orchestration.single import Single
 from logging import INFO, basicConfig
 from argparse import ArgumentParser
-from config import DEFAULT_VOLUME, SEED, ALGORITHMS, DEFAULT_ALGORITM
-from orchestration.single import Single
-from orchestration.serialization import Serialization
+from sys import path
 
 def cli():
     basicConfig(
@@ -22,41 +23,34 @@ def cli():
         "--volume", "-v", type=int, default=DEFAULT_VOLUME,
         help="Número de operações"
     )
-
-    parser.add_argument(
-        "--seed", "-s",
-        type=int, default=SEED,
-        help="Seed para reprodutibilidade"
-    )   
     
     args = parser.parse_args()
     return args
 
 if __name__ == "__main__":
+    if str(DEVELOP_DIR) not in path:
+        path.insert(0, str(DEVELOP_DIR))
+
     args = cli()
     
     print(f"\n{'='*60}")
     print(f"Executando:", *args.algorithm)
     print(f"Volume: {args.volume}")
-    print(f"Seed: {args.seed}")
     print(f"{'='*60}\n")
     
     result = Serialization().run(
             algorithm=args.algorithm,
             volumes=args.volume,
-            seed=args.seed
         ) if len(args.algorithm) > 1 else Single().run(
             algorithm=args.algorithm[0],
             volume=args.volume,
-            seed=args.seed
         )
 
     
     print(f"\n{'='*60}")
     print(f"✓ Execução concluída!")
     print(f"Status: {result['status']}")
-    print(f"Duração: {result['duration_ms']:.2f} ms")
-    print(f"Volumes testados: {len(result['evaluations'])}")
+    print(f"Duração: {result['duration_min']:.2f} ms")
     if "report_path" in result:
         print(f"Relatório: {result['report_path']}")
     print(f"{'='*60}\n")

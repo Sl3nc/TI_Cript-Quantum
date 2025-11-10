@@ -4,10 +4,9 @@ Orquestração de execução única de algoritmo com profiling.
 User Story 1: Executar avaliação única com coleta de métricas completas.
 User Story 2: Gerar relatório Markdown individual.
 """
-from config import DEFAULT_VOLUME, SEED, ALGORITHMS, RESULTS_DIR
-from metrics.profile.manager import ProfilerManager
+from config import DEFAULT_VOLUME, ALGORITHMS, RESULTS_DIR
+from metrics.profile.manager import Profiler
 from visualize.report_markdown import ReportMarkdown
-from metrics.aggregator import aggregate
 from visualize.plotting import Plotting
 from logging import getLogger
 from datetime import datetime
@@ -25,7 +24,6 @@ class Single:
         self,
         algorithm: str,
         volume: int = DEFAULT_VOLUME,
-        seed: int = SEED
     ) -> Dict[str, Any]:
         """
         Executa avaliação única de algoritmo com profiling completo.
@@ -37,13 +35,11 @@ class Single:
             
         Returns:
             Dict AlgorithmEvaluation com:
-                - id: str (timestamp + algoritmo)
                 - algorithm: str
-                - challenge_type: str
                 - volume: int
                 - started_at: str (ISO timestamp)
                 - ended_at: str (ISO timestamp)
-                - duration_ms: float
+                - duration_min: float
                 - status: str (success|partial|failed)
                 - metrics: dict (agregados)
                 - hardware_profile: dict
@@ -52,69 +48,57 @@ class Single:
         Raises:
             ValueError: Se algorithm inválido ou volume <= 0
         """
-        self.validate_data(algorithm, volume)
-        
-        algo_func = ALGORITHMS[algorithm]
-        
-        started_at = datetime.now()
-        evaluation_id = f"{algorithm}_{started_at.strftime('%Y%m%d_%H%M%S_%f')}"
-        
-        profiler = ProfilerManager()
-        
-        logger.info(f"action=run_single: START algorithm={algorithm} volume={volume} seed={seed}")
         try:
+            algo_func = self.validate_data(algorithm, volume)
+            
+            started_at = datetime.now()
+            
+            logger.info(f"action=run_single: START algorithm={algorithm} volume={volume}")
+            
             # Executa algoritmo com profiling
-            profiled_result = profiler.profile_function(algo_func, volume=volume, seed=seed)
+            profiled_result = Profiler().execution(algo_func, volume=volume)
             
             ended_at = datetime.now()
-            duration_ms = (ended_at - started_at).total_seconds() * 1000
+            duration_min = (ended_at - started_at).total_seconds() / 60
             
             # Agrega métricas
             raw_metrics = profiled_result["metrics"]
             
             # Monta resultado final (AlgorithmEvaluation)
             evaluation = {
-                "id": evaluation_id,
                 "algorithm": algorithm,
-                "challenge_type": ALGORITHMS[algorithm],
                 "volume": volume,
-                "started_at": started_at.isoformat(),
-                "ended_at": ended_at.isoformat(),
-                "duration_ms": duration_ms,
+                "duration_min": duration_min,
                 "status": "success",
-                "hardware_profile": raw_metrics.get("hardware_info", {}),
+                "hardware_profile": raw_metrics.get("hardware_info", 'Undefined'),
                 "notes": "",
-                "seed": seed
             }
             
-            report_path, image_paths = self._generate_report(evaluation, raw_metrics)
+            report_path, image_paths = self._generate_report(
+                evaluation, raw_metrics, started_at
+            )
             
             evaluation["report_path"] = str(report_path)
             evaluation["report_images"] = [str(p) for p in image_paths]
             
-            logger.info(f"action=run_single: COMPLETE id={evaluation_id} status=success duration_ms={duration_ms:.2f} report={report_path}")
+            logger.info(f"action=run_single: COMPLETE status=success duration_min={duration_min:.2f} report={report_path}")
             return evaluation
             
         except Exception as e:
             ended_at = datetime.now()
-            duration_ms = (ended_at - started_at).total_seconds() * 1000
+            duration_min = (ended_at - started_at).total_seconds() / 60
             
             logger.error(f"action=run_single: FAILED algorithm={algorithm} error={str(e)}")
             
             # Retorna estrutura com status failed
             return {
-                "id": evaluation_id,
                 "algorithm": algorithm,
-                "challenge_type": ALGORITHMS[algorithm],
                 "volume": volume,
-                "started_at": started_at.isoformat(),
-                "ended_at": ended_at.isoformat(),
-                "duration_ms": duration_ms,
+                "duration_min": duration_min,
                 "status": "failed",
-                "metrics": {},
-                "hardware_profile": {},
+                "metrics": 'Undefined',
+                "hardware_profile": 'Undefined',
                 "notes": f"Error: {str(e)}",
-                "seed": seed
             }
 
     def validate_data(self, algorithm, volume):
@@ -123,10 +107,12 @@ class Single:
             raise ValueError(f"Unknown algorithm '{algorithm}'. Valid options: {valid_algos}")
         
         if volume <= 0:
-            raise ValueError(f"volume must be greater than 0, got {volume}")
+            raise ValueError(f"Volume must be greater than 0, got {volume}")
+        
+        return ALGORITHMS[algorithm]
 
 
-    def _generate_report(self, evaluation: Dict[str, Any], raw_metrics: Dict[str, Any]) -> tuple[Path, list[Path]]:
+    def _generate_report(self, evaluation: Dict[str, Any], raw_metrics: Dict[str, Any], started_at: datetime) -> tuple[Path, list[Path]]:
         """
         Gera relatório Markdown e gráficos.
         
@@ -139,7 +125,6 @@ class Single:
         """
         image_paths = []
         algorithm = evaluation["algorithm"]
-        started_at = datetime.fromisoformat(evaluation["started_at"])
         timestamp_str = started_at.strftime("%d-%m-%Y_%Hh-%Mm")
         
         # Diretório específico do algoritmo
@@ -154,7 +139,6 @@ class Single:
             counter += 1
         
         algo_dir.mkdir(parents=True, exist_ok=True)
-
         
         memory_increments = raw_metrics.get("memory_metrics", {}).get("memory_increments", [])
         system_metrics = raw_metrics.get("system_metrics", {})

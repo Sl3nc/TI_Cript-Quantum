@@ -21,6 +21,7 @@ wheels/
 *.egg
 MANIFEST
 *.dia.autosave
+output/
 
 # Virtual environments
 venv/

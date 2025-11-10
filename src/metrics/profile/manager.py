@@ -7,7 +7,7 @@ from .memory import Memory
 from ..system_sampler import SystemSampler
 from ..hardware import Hardware
 
-class ProfilerManager:
+class Profiler:
     """
     Orquestrador de profiling garantindo neutralidade entre algoritmos.
     
@@ -21,16 +21,13 @@ class ProfilerManager:
         self.system_sampler = SystemSampler()
         self.hardware_info = None
         
-    def start_profiling(self) -> None:
+    def _start(self) -> None:
         """Inicia todos os profilers."""
         self.cpu_profiler = self.profilerCPU.start()
+        self.hardware_info = Hardware().snapshot_hardware()
         self.system_sampler.start()
         
-        # Captura hardware uma vez por execução
-        if self.hardware_info is None:
-            self.hardware_info = Hardware().snapshot_hardware()
-    
-    def stop_profiling(self) -> Dict[str, Any]:
+    def _stop(self) -> Dict[str, Any]:
         """
         Para todos os profilers e coleta métricas.
         
@@ -49,7 +46,7 @@ class ProfilerManager:
             "hardware_info": self.hardware_info or {}
         }
     
-    def profile_function(self, func: Callable, *args, **kwargs) -> Dict[str, Any]:
+    def execution(self, func: Callable, *args, **kwargs) -> Dict[str, Any]:
         """
         Perfila uma função completa com todas as métricas.
         
@@ -62,12 +59,12 @@ class ProfilerManager:
                 - result: Any (retorno da função)
                 - metrics: dict (todas as métricas coletadas)
         """
-        self.start_profiling()
+        self._start()
         
         # Executa com trace de memória
         memory_result = Memory().trace(func, *args, **kwargs)
         
-        metrics = self.stop_profiling()
+        metrics = self._stop()
         metrics["memory_metrics"] = {
             "memory_mb": memory_result["memory_mb"],
             "memory_increments": memory_result["memory_increments"]

@@ -11,7 +11,7 @@ from secrets import token_bytes
 logger = getLogger(__name__)
 
 
-def cipher_rounds(volume: int, seed: int = 42) -> Dict[str, Any]:
+def cipher_rounds(volume: int) -> Dict[str, Any]:
     """
     Executa rodadas de cifração/decifração usando Krypton.
     
@@ -33,7 +33,7 @@ def cipher_rounds(volume: int, seed: int = 42) -> Dict[str, Any]:
     if volume <= 0:
         raise ValueError(f"volume must be greater than 0, got {volume}")
     
-    logger.info(f"action=Krypton: START volume={volume} seed={seed}")
+    logger.info(f"action=Krypton: START volume={volume}")
     plaintext = b"Hello World"
         
     # Simular cifragens
@@ -55,7 +55,6 @@ def cipher_rounds(volume: int, seed: int = 42) -> Dict[str, Any]:
         "operations_completed": volume,
         "algorithm": "Krypton",
         "volume": volume,
-        "seed": seed
     }
     
     logger.info(f"action=Krypton: COMPLETE operations={volume}")

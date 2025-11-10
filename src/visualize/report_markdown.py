@@ -24,31 +24,19 @@ class ReportMarkdown:
             ## Gráficos
         """
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        
         image_paths = image_paths or []
         
         # Header
         algorithm = evaluation.get("algorithm", "Unknown")
-        timestamp = evaluation.get("started_at", "")
-        
-        # Converter ISO timestamp para PT-BR se disponível
-        try:
-            dt = datetime.fromisoformat(timestamp)
-            timestamp_br = dt.strftime("%d-%m-%Y %Hh%Mm%Ss.%f")[:-3]  # Milissegundos
-        except:
-            timestamp_br = timestamp
         
         lines = [
-            f"# {algorithm} - {timestamp_br}",
-            "",
-            "## Resumo",
+            "## Relatório",
             "",
             f"**Algoritmo**: {algorithm}",
             f"**Tipo de Desafio**: {evaluation.get('challenge_type', 'N/A')}",
             f"**Volume**: {evaluation.get('volume', 0)} operações",
             f"**Status**: {evaluation.get('status', 'unknown')}",
-            f"**Duração**: {evaluation.get('duration_ms', 0):.2f} ms",
-            f"**Seed**: {evaluation.get('seed', 'N/A')}",
+            f"**Duração**: {evaluation.get('duration_min', 0):.2f} ms",
             "",
         ]
         
@@ -98,31 +86,11 @@ class ReportMarkdown:
             ])
             
             for img_path in image_paths:
-                img_name = img_path.name
-                # Caminho relativo ao relatório
-                rel_path = img_path.name  # Assumindo imagens no mesmo diretório
-                lines.append(f"![{img_name}]({rel_path})")
+                lines.append(f"![{img_path.name}]({img_path.name})")
                 lines.append("")
-        
-        # Notas
-        notes = evaluation.get("notes", "")
-        if notes:
-            lines.extend([
-                "## Observações",
-                "",
-                notes,
-                ""
-            ])
-        
-        # Footer
-        lines.extend([
-            "---",
-            f"*Relatório gerado em {datetime.now().strftime('%d-%m-%Y %Hh%Mm%Ss')}*"
-        ])
         
         content = "\n".join(lines)
         output_path.write_text(content, encoding='utf-8')
-
 
     def _format_metric(self, value) -> str:
         """Formata métrica, tratando None."""
@@ -131,7 +99,6 @@ class ReportMarkdown:
         if isinstance(value, (int, float)):
             return f"{value:,}"
         return str(value)
-
 
     def build_series_report(self, series: Dict[str, Any], output_path: Path, image_paths: List[Path]) -> None:
         """

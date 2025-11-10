@@ -12,7 +12,7 @@ from orchestration.single import Single
 from metrics.aggregator import aggregate_series
 from visualize.report_markdown import ReportMarkdown
 from visualize.plotting import Plotting
-from config import SEED, ALGORITHMS, RESULTS_DIR
+from config import ALGORITHMS, RESULTS_DIR
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,6 @@ class Serialization:
         self,
         algorithm: str,
         volumes: List[int],
-        seed: int = SEED
     ) -> Dict[str, Any]:
         """
         Executa análise de escalabilidade com múltiplos volumes.
@@ -54,7 +53,7 @@ class Serialization:
         # Validações
         self.validate_volumes(algorithm, volumes)
         
-        logger.info(f"action=run_scalability: START algorithm={algorithm} volumes={volumes} seed={seed}")
+        logger.info(f"action=run_scalability: START algorithm={algorithm} volumes={volumes}")
         
         single = Single()
         started_at = datetime.now()
@@ -73,7 +72,6 @@ class Serialization:
                 eval_result = single.run(
                     algorithm=algorithm,
                     volume=volume,
-                    seed=seed + idx
                 )
                 
                 evaluations.append(eval_result)
@@ -91,7 +89,6 @@ class Serialization:
                     "status": "failed",
                     "metrics": {},
                     "notes": f"Error: {str(e)}",
-                    "seed": seed + idx
                 }
                 evaluations.append(failed_eval)
                 evaluation_ids.append(failed_eval["id"])

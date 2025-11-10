@@ -2,7 +2,6 @@
 Configuração centralizada para execuções.
 """
 from pathlib import Path
-from sys import path
 from algorithms.krypton_cipher import cipher_rounds
 from algorithms.mldsa_dss import generate_and_sign
 from algorithms.mlkem_kem import run_mlkem
@@ -10,15 +9,11 @@ from algorithms.mlkem_kem import run_mlkem
 # Diretórios
 PROJECT_ROOT = Path().resolve()
 DEVELOP_DIR = PROJECT_ROOT / "src"
-RESULTS_DIR = PROJECT_ROOT / "docs" / "results"
-
-# if str(DEVELOP_DIR) not in path:
-#     path.insert(0, str(DEVELOP_DIR))
+RESULTS_DIR = PROJECT_ROOT / "output"
 
 # Parâmetros de execução
 DEFAULT_ALGORITM = 'KEM'
 DEFAULT_VOLUME = 1
-SEED = 42
 
 # Timestamp format: DD-MM-YYYY HHhMMmSSs.mmm
 # Unicidade: milissegundos + sufixo incremental se colisão detectada

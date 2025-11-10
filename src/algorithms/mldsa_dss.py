@@ -10,7 +10,7 @@ from quantcrypt.dss import MLDSA_87
 logger = getLogger(__name__)
 
 
-def generate_and_sign(volume: int, seed: int = 42) -> Dict[str, Any]:
+def generate_and_sign(volume: int) -> Dict[str, Any]:
     """
     Executa operações de assinatura digital usando MLDSA_87.
     
@@ -32,7 +32,7 @@ def generate_and_sign(volume: int, seed: int = 42) -> Dict[str, Any]:
     if volume <= 0:
         raise ValueError(f"volume must be greater than 0, got {volume}")
     
-    logger.info(f"action=DSS: START volume={volume} seed={seed}")
+    logger.info(f"action=DSS: START volume={volume}")
 
     dss = MLDSA_87()
     message = b'Hello World'
@@ -48,7 +48,6 @@ def generate_and_sign(volume: int, seed: int = 42) -> Dict[str, Any]:
         "operations_completed": volume,
         "algorithm": "MLDSA_87",
         "volume": volume,
-        "seed": seed
     }
     
     logger.info(f"action=DSS: COMPLETE operations={volume}")

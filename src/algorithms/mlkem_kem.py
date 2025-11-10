@@ -11,7 +11,7 @@ from quantcrypt.kem import MLKEM_1024
 logger = getLogger(__name__)
 
 
-def run_mlkem(volume: int, seed: int = 42) -> Dict[str, Any]:
+def run_mlkem(volume: int) -> Dict[str, Any]:
     """
     Executa operações de KEM (Key Encapsulation) usando MLKEM_1024.
     
@@ -33,7 +33,7 @@ def run_mlkem(volume: int, seed: int = 42) -> Dict[str, Any]:
     if volume <= 0:
         raise ValueError(f"volume must be greater than 0, got {volume}")
     
-    logger.info(f"action=KEM: START volume={volume} seed={seed}")
+    logger.info(f"action=KEM: START volume={volume}")
     kem = MLKEM_1024()
         
     # Simular execuções
@@ -47,7 +47,6 @@ def run_mlkem(volume: int, seed: int = 42) -> Dict[str, Any]:
         "operations_completed": volume,
         "algorithm": "MLKEM_1024",
         "volume": volume,
-        "seed": seed
     }
     
     logger.info(f"action=KEM: COMPLETE operations={volume}")
