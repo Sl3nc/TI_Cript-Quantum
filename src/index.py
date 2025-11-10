@@ -13,14 +13,13 @@ def cli():
     parser = ArgumentParser(description="Execute uma avaliação única de algoritmo")
     parser.add_argument(
         "--algorithm", "-a",
-        default=DEFAULT_ALGORITM,                
+        default=[DEFAULT_ALGORITM], nargs="+",
         choices=list(ALGORITHMS.keys()),
-        help="Algoritmo a executar"
+        help="Algoritmos a executar"
     )
 
     parser.add_argument(
-        "--volume", "-v", nargs="+",
-        type=list, default=DEFAULT_VOLUME,
+        "--volume", "-v", type=int, default=DEFAULT_VOLUME,
         help="Número de operações"
     )
 
@@ -37,7 +36,7 @@ if __name__ == "__main__":
     args = cli()
     
     print(f"\n{'='*60}")
-    print(f"Executando: {args.algorithm}")
+    print(f"Executando:", *args.algorithm)
     print(f"Volume: {args.volume}")
     print(f"Seed: {args.seed}")
     print(f"{'='*60}\n")
@@ -46,8 +45,8 @@ if __name__ == "__main__":
             algorithm=args.algorithm,
             volumes=args.volume,
             seed=args.seed
-        ) if len(args.volume) > 1 else Single().run(
-            algorithm=args.algorithm,
+        ) if len(args.algorithm) > 1 else Single().run(
+            algorithm=args.algorithm[0],
             volume=args.volume,
             seed=args.seed
         )

@@ -71,7 +71,6 @@ class Single:
             
             # Agrega métricas
             raw_metrics = profiled_result["metrics"]
-            aggregated = aggregate([raw_metrics])
             
             # Monta resultado final (AlgorithmEvaluation)
             evaluation = {
@@ -83,7 +82,6 @@ class Single:
                 "ended_at": ended_at.isoformat(),
                 "duration_ms": duration_ms,
                 "status": "success",
-                "metrics": aggregated,
                 "hardware_profile": raw_metrics.get("hardware_info", {}),
                 "notes": "",
                 "seed": seed
@@ -120,7 +118,7 @@ class Single:
             }
 
     def validate_data(self, algorithm, volume):
-        if algorithm not in ALGORITHMS:
+        if algorithm not in ALGORITHMS.keys():
             valid_algos = ", ".join(ALGORITHMS.keys())
             raise ValueError(f"Unknown algorithm '{algorithm}'. Valid options: {valid_algos}")
         

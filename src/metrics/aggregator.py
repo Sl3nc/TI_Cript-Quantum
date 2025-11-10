@@ -4,29 +4,6 @@ Agregação de métricas de múltiplas execuções.
 from typing import List, Dict, Any
 from statistics import mean, stdev
 
-def aggregate(metrics_list: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """
-    Agrega métricas de uma única execução.
-    
-    Args:
-        metrics_list: Lista de dicts com métricas brutas (CPU, memória, sistema)
-        
-    Returns:
-        Dict consolidado com métricas agregadas:
-            - cpu_time_ms: float
-            - memory_mb: float
-            - cpu_cycles: int | None
-            - hardware_info: dict
-    """
-    # Placeholder: implementar agregação real
-    return {
-        "cpu_time_ms": 0.0,
-        "memory_mb": 0.0,
-        "cpu_cycles": None,
-        "hardware_info": {}
-    }
-
-
 def aggregate_series(evaluations: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
     Agrega métricas de múltiplas execuções (diferentes volumes).
