@@ -69,13 +69,14 @@ class Single:
                 "algorithm": algorithm,
                 "volume": volume,
                 "duration_min": duration_min,
+                "metrics": raw_metrics,
                 "status": "success",
                 "hardware_profile": raw_metrics.get("hardware_info", 'Undefined'),
                 "notes": "",
             }
             
             report_path, image_paths = self._generate_report(
-                evaluation, raw_metrics, started_at
+                evaluation, started_at
             )
             
             evaluation["report_path"] = str(report_path)
@@ -112,7 +113,7 @@ class Single:
         return ALGORITHMS[algorithm]
 
 
-    def _generate_report(self, evaluation: Dict[str, Any], raw_metrics: Dict[str, Any], started_at: datetime) -> tuple[Path, list[Path]]:
+    def _generate_report(self, evaluation: Dict[str, Any], started_at: datetime) -> tuple[Path, list[Path]]:
         """
         Gera relatório Markdown e gráficos.
         
@@ -139,9 +140,9 @@ class Single:
             counter += 1
         
         algo_dir.mkdir(parents=True, exist_ok=True)
-        
-        memory_increments = raw_metrics.get("memory_metrics", {}).get("memory_increments", [])
-        system_metrics = raw_metrics.get("system_metrics", {})
+
+        metrics = evaluation['metrics']
+        memory_increments = metrics.get("memory_metrics", {}).get("memory_increments", [])
         
         # Gráfico 1: CPU time (se houver dados de série temporal)
         self.generate_cpu_time_plot(algo_dir, image_paths, memory_increments)

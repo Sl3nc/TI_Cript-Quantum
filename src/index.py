@@ -50,7 +50,7 @@ if __name__ == "__main__":
     print(f"\n{'='*60}")
     print(f"✓ Execução concluída!")
     print(f"Status: {result['status']}")
-    print(f"Duração: {result['duration_min']:.2f} ms")
+    print(f"Duração: {result['duration_min']:.2f} min")
     if "report_path" in result:
         print(f"Relatório: {result['report_path']}")
     print(f"{'='*60}\n")

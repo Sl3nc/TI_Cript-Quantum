@@ -33,10 +33,8 @@ class ReportMarkdown:
             "## Relatório",
             "",
             f"**Algoritmo**: {algorithm}",
-            f"**Tipo de Desafio**: {evaluation.get('challenge_type', 'N/A')}",
             f"**Volume**: {evaluation.get('volume', 0)} operações",
-            f"**Status**: {evaluation.get('status', 'unknown')}",
-            f"**Duração**: {evaluation.get('duration_min', 0):.2f} ms",
+            f"**Duração**: {evaluation.get('duration_min', 0):.2f} min",
             "",
         ]
         
@@ -62,12 +60,16 @@ class ReportMarkdown:
                 "## Métricas Coletadas",
                 "",
             ])
+
+            cpu = metrics['cpu_metrics']
+            system = metrics['system_metrics']
+            memory = metrics['memory_metrics']
             
             # Tabela de métricas com tabulate
             metrics_data = [
-                ["CPU Time", f"{metrics.get('cpu_time_ms', 0):.2f} ms"],
-                ["Memory Peak", f"{metrics.get('memory_mb', 0):.2f} MB"],
-                ["CPU Cycles", self._format_metric(metrics.get('cpu_cycles'))],
+                ["CPU Time", f"{cpu.get('cpu_time_ms', 0):.2f} ms"],
+                ["CPU Cycles", self._format_metric(system.get('cpu_cycles'))],
+                ["Memory Peak", f"{memory.get('memory_mb', 0):.2f} MB"],
             ]
             
             table = tabulate.tabulate(
