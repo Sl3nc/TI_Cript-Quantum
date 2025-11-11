@@ -68,8 +68,9 @@ class ReportMarkdown:
             # Tabela de métricas com tabulate
             metrics_data = [
                 ["CPU Time", f"{cpu.get('cpu_time_ms', 0):.2f} ms"],
-                ["CPU Cycles", self._format_metric(system.get('cpu_cycles'))],
+                ["CPU Usage Avarage", f"{system.get('cpu_percent_avg', 0):.2f}%"],
                 ["Memory Peak", f"{memory.get('memory_mb', 0):.2f} MB"],
+                ["Memory Usage Maximum", f"{system.get('memory_percent_max', 0):.2f}%"],
             ]
             
             table = tabulate.tabulate(
@@ -93,14 +94,6 @@ class ReportMarkdown:
         
         content = "\n".join(lines)
         output_path.write_text(content, encoding='utf-8')
-
-    def _format_metric(self, value) -> str:
-        """Formata métrica, tratando None."""
-        if value is None:
-            return "N/A (indisponível)"
-        if isinstance(value, (int, float)):
-            return f"{value:,}"
-        return str(value)
 
     def build_series_report(self, series: Dict[str, Any], output_path: Path, image_paths: List[Path]) -> None:
         """

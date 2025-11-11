@@ -56,13 +56,10 @@ class Single:
             logger.info(f"action=run_single: START algorithm={algorithm} volume={volume}")
             
             # Executa algoritmo com profiling
-            profiled_result = Profiler().execution(algo_func, volume=volume)
+            raw_metrics = Profiler().execution(algo_func, volume=volume)
             
             ended_at = datetime.now()
             duration_min = (ended_at - started_at).total_seconds() / 60
-            
-            # Agrega métricas
-            raw_metrics = profiled_result["metrics"]
             
             # Monta resultado final (AlgorithmEvaluation)
             evaluation = {

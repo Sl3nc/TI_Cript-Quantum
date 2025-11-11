@@ -27,8 +27,12 @@ class Memory:
         )[0]
 
         peak_memory = max(mem_usage) if mem_usage else 0.0
-        baseline = mem_usage[0] if mem_usage else 0.0
-        increments = [m - baseline for m in mem_usage]
+        # baseline = mem_usage[0] if mem_usage else 0.0
+        # increments = [m - baseline for m in mem_usage]
+
+        # increments = [(m - mem_usage[index]) * 10 for index, m in enumerate(mem_usage[2:], start=1)]
+        
+        increments = mem_usage[1:]
         
         return {
             "peak_memory": peak_memory,
