@@ -58,14 +58,13 @@ class Single:
             # Executa algoritmo com profiling
             raw_metrics = Profiler().execution(algo_func, volume=volume)
             
-            ended_at = datetime.now()
-            duration_min = (ended_at - started_at).total_seconds() / 60
+            duration = self.calculate_duration(started_at)
             
             # Monta resultado final (AlgorithmEvaluation)
             evaluation = {
                 "algorithm": algorithm,
                 "volume": volume,
-                "duration_min": duration_min,
+                "duration_min": duration,
                 "metrics": raw_metrics,
                 "status": "success",
                 "hardware_profile": raw_metrics.get("hardware_info", 'Undefined'),
@@ -79,25 +78,29 @@ class Single:
             evaluation["report_path"] = str(report_path)
             evaluation["report_images"] = [str(p) for p in image_paths]
             
-            logger.info(f"action=run_single: COMPLETE status=success duration_min={duration_min:.2f} report={report_path}")
+            logger.info(f"action=run_single: COMPLETE status=success duration_min={duration} report={report_path}")
             return evaluation
             
         except Exception as e:
-            ended_at = datetime.now()
-            duration_min = (ended_at - started_at).total_seconds() / 60
-            
+            duration = self.calculate_duration(started_at)
             logger.error(f"action=run_single: FAILED algorithm={algorithm} error={str(e)}")
             
             # Retorna estrutura com status failed
             return {
                 "algorithm": algorithm,
                 "volume": volume,
-                "duration_min": duration_min,
+                "duration_min": duration,
                 "status": "failed",
                 "metrics": 'Undefined',
                 "hardware_profile": 'Undefined',
                 "notes": f"Error: {str(e)}",
             }
+
+    def calculate_duration(self, started_at: datetime):
+        ended_at = datetime.now()
+        duration = (ended_at - started_at).total_seconds()
+        duration_format = f'{int(duration // 60):02d} min : {(duration % 60):05.2f} seg'
+        return duration_format
 
     def validate_data(self, algorithm, volume):
         if algorithm not in ALGORITHMS.keys():
@@ -159,7 +162,7 @@ class Single:
             memory_plot = algo_dir / f"memory.png"
             try:
                 self.plotting.plot_memory_series(
-                    memory_increments[:50] if len(memory_increments) > 50 else memory_increments,
+                    memory_increments,
                     memory_plot
                 )
                 image_paths.append(memory_plot)
@@ -176,8 +179,8 @@ class Single:
                     timestamps,
                     memory_increments,
                     cpu_time_plot,
-                    title=f"CPU Time Series",
-                    ylabel="Time Offset (arbitrary)"
+                    title=f"CPU Time",
+                    ylabel="Time Offset"
                 )
                 image_paths.append(cpu_time_plot)
             except Exception as e:

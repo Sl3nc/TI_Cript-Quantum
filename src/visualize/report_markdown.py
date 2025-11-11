@@ -34,7 +34,7 @@ class ReportMarkdown:
             "",
             f"**Algoritmo**: {algorithm}",
             f"**Volume**: {evaluation.get('volume', 0)} operações",
-            f"**Duração**: {evaluation.get('duration_min', 0):.2f} min",
+            f"**Duração**: {evaluation.get('duration_min', 'Undefined')}",
             "",
         ]
         
