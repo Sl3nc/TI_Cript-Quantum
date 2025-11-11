@@ -43,11 +43,4 @@ def run_mlkem(volume: int) -> Dict[str, Any]:
         decapsulated_secret = kem.decaps(secret_key, cipher_text)
         assert shared_secret == decapsulated_secret
     
-    result = {
-        "operations_completed": volume,
-        "algorithm": "MLKEM_1024",
-        "volume": volume,
-    }
-    
     logger.info(f"action=KEM: COMPLETE operations={volume}")
-    return result

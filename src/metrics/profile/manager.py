@@ -66,11 +66,8 @@ class Profiler:
         
         metrics = self._stop()
         metrics["memory_metrics"] = {
-            "memory_mb": memory_result["memory_mb"],
+            "memory_mb": memory_result["peak_memory"],
             "memory_increments": memory_result["memory_increments"]
         }
         
-        return {
-            "result": memory_result["result"],
-            "metrics": metrics
-        }
+        return metrics

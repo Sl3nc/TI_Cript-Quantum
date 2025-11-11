@@ -49,39 +49,33 @@ class CPU:
                 total_calls: Chamadas totais (inclui recursivas)
         """
         profiler.disable()
-        logger.debug("action=stop_cpu_profile status=disabled")
+        logger.debug("action=cpu_profile: STOP status=disabled")
 
         stream = StringIO()
         stats = pstats.Stats(profiler, stream=stream)
         stats.sort_stats("cumulative")
 
-        total_calls = getattr(stats, "total_calls", 0)
-        prim_calls = getattr(stats, "prim_calls", 0)
-
         total_inline_time = 0.0  
         max_cum_time = 0.0      
 
-        # stats.stats: {(filename, line, funcname): (prim_calls, total_calls, inline_time, cumulative_time, callers)}
-        for func_key, func_stats in getattr(stats, "stats", {}).items():
+        for _, func_stats in getattr(stats, "stats", {}).items():
             inline_time = func_stats[2]
             cumulative_time = func_stats[3]
             total_inline_time += inline_time
             if cumulative_time > max_cum_time:
                 max_cum_time = cumulative_time
 
-        cpu_time_ms = total_inline_time * 1000.0
-        cumulative_time_ms = max_cum_time * 1000.0
+        cpu_time_seg = total_inline_time
+        cumulative_time_seg = max_cum_time
 
         logger.info(
-            "action=cpu_profile: STOPPED primitive_calls=%d total_calls=%d cpu_time_ms=%.3f cumulative_time_ms=%.3f",
-            prim_calls, total_calls, cpu_time_ms, cumulative_time_ms
+            "action=cpu_profile: STOPPED - cpu_time_ms=%.3f - cumulative_time_ms=%.3f",
+            cpu_time_seg, cumulative_time_seg
         )
 
         return {
-            "cpu_time_ms": cpu_time_ms,
-            "cumulative_time_ms": cumulative_time_ms,
-            "primitive_calls": prim_calls,
-            "total_calls": total_calls,
+            "cpu_time_ms": cpu_time_seg,
+            "cumulative_time_ms": cumulative_time_seg,
         }
 
 

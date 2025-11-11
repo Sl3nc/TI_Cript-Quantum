@@ -44,11 +44,4 @@ def generate_and_sign(volume: int) -> Dict[str, Any]:
         is_valid = dss.verify(public_key, message, signature)
         assert is_valid
     
-    result = {
-        "operations_completed": volume,
-        "algorithm": "MLDSA_87",
-        "volume": volume,
-    }
-    
     logger.info(f"action=DSS: COMPLETE operations={volume}")
-    return result

@@ -19,19 +19,18 @@ class Memory:
                 - memory_increments: list (crescimento incremental)
                 - result: Any (retorno da função)
         """
-        mem_usage, result = memory_usage(
+        mem_usage = memory_usage(
             cast(Any, (func, args, kwargs)),
             interval=0.01,
             include_children=True,
             retval=True
-        )
+        )[0]
 
         peak_memory = max(mem_usage) if mem_usage else 0.0
         baseline = mem_usage[0] if mem_usage else 0.0
         increments = [m - baseline for m in mem_usage]
         
         return {
-            "memory_mb": peak_memory,
+            "peak_memory": peak_memory,
             "memory_increments": increments,
-            "result": result
         }

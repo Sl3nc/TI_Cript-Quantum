@@ -50,12 +50,5 @@ def cipher_rounds(volume: int) -> Dict[str, Any]:
         krypton.finish_decryption()
 
         assert plaintext_copy == plaintext
-    
-    result = {
-        "operations_completed": volume,
-        "algorithm": "Krypton",
-        "volume": volume,
-    }
-    
+
     logger.info(f"action=Krypton: COMPLETE operations={volume}")
-    return result
