@@ -1,0 +1,20 @@
+Definição do que se deseja construir (requisitos e histórias de usuário)
+
+Desejo construir um programa que resolva problemas criptográficos com cada um dos algoritmos criptográficos pós-quânticos disponibilizados pela biblioteca "quantCrypt" enquanto coleta métricas que descrevam os efeitos dessa execução ao hardware. 
+
+Os algoritmos da biblioteca "quantCrypt" que devem ser avaliados são: KEM algorithm (MLKEM_1024), DSS algorithm (MLDSA_87)e Krypton Cipher algorithm (Krypton). Cada algoritmo deve executar um roteiro de testes apropriado ao desafio criptográfico que busca solucionar. Exemplo: KEM algorithm gerar 1000 chaves públicas e privadas, criptografar elas e depois descriptorgrafar
+
+A "quantidade de vezes que o desafio é resolvido por um algoritmo" deve ser um valor capaz de ser ajustável posteriormente. Seguindo o exemplo anterior, o desafio de gerar 1000 chaves deve ser capaz de ser ajustável para gerar 10000 chaves, apenas alterando o valor requisitado
+
+Todos os algoritmos devem ser avaliados sob as mesmas métricas, porém usados para solucionar diferentes problemas criptográficos, com diferentes métodos e classes obtidas pela biblioteca "quantCrypt". 
+
+Deverá ser possível executar cada combinação de algoritmos + problema criptográfico individualmente, para cada combinação deverá ser produzido um relatório único que descreve dados da execução específica, junto com a análise descritiva e visual das métricas exigidas.
+
+O relatório deverá conter textos e gráficos que ilustram o comportamento do algoritmo ao longo de sua execução. Cada execução deverá ser um registro a mais na pasta de resultados do respectivo algoritmo, seja cada resultado nomeado pelo nome do algoritmo + data e hora da execução do teste. Exemplo: "KEM algorithm - 15:15 4/11/2025"
+
+A métricas que devem ser coletas são:
+- Tempo de CPU
+- Uso de memória
+- Ciclos de CPU
+- Cache misses
+- Informações de hardware

@@ -1,0 +1,22 @@
+Princípios de governança e diretrizes de desenvolvimento
+
+/speckit.constitution Este projeto que irá avaliar a execução de diferentes algoritmos de Criptografia pós-quânticos. Analisando os efeitos sofridos pelo hardware enquanto o algoritmo soluciona desafios criptográficos característicos do algoritmo em si.
+
+É um projeto executado por uma única pessoa, sem qualquer técnica de code review ou hierarquia de cargos
+
+O desenvolvimento deve seguir o TDD, gerando a suíte de testes de cada classe antes antes de seu desenvolvimento. Para os testes deve ser usada a biblioteca Pytest. 
+
+Não deve ter cobertura mínima de testes, nem quantidade mínima aceitável de resultados produzido pelos algoritmos avaliados
+
+Todos os algoritmos de Criptografia pós-quântica devem ser avaliados sob as mesmas métricas, porém usados para solucionar diferentes problemas criptográficos, com diferentes métodos 
+
+Deve ser usado apenas e exclusivamente os algoritmos quânticos disponibilizados pela biblioteca "quantCrypt". Não deve ser implementado um algoritmo por conta própria, mas usado apenas as classes e soluções oferecidas pela quantCrypt
+
+A métricas a serem coletas serão:
+- Tempo de CPU
+- Uso de memória
+- Ciclos de CPU
+- Cache misses
+- Informações de hardware
+
+Para extrair as métricas em tempo real, deve-se usar as bibliotecas: cProfile, line_profiler, memory_profiler, psutil  py-cpuinfo. Para a análise estatística usar as bibliotecas: numpy e pandas. Para visualização e reportagem dos resultados, usar a biblioteca "tabulate" e tabelas do tipo Markdown

@@ -1,0 +1,11 @@
+Plano técnico de implementação de acordo com as tecnologias escolhidas
+
+Deverá ser implementado cada combinação de algoritmo criptográfico + problema criptográfico individualmente em um arquivo único. Os arquivos que desenvolvem as métricas devem ser implementadas isoladamente das combinações de algoritmos criptográfico + problema criptográfico, mas suas ações de levantar, analisar e produzir resultados com as métricas devem ser aplicadas a cada uma das combinações da mesma forma
+
+O programa deverá ser todo implementado em Python, composto por uma pasta com os arquivos das combinações de algoritmo criptográfico + problema criptográfico e outra pasta apenas com os arquivos que levantam, analisam e produzem resultados com as métricas. Ambas pastas dentro da pasta "src" do projeto
+
+Para extrair as métricas em tempo real, deve-se usar as bibliotecas: cProfile, line_profiler, memory_profiler, psutil  py-cpuinfo. Para a análise estatística usar as bibliotecas: numpy e pandas. Para visualização e reportagem dos resultados, usar a biblioteca "tabulate" e tabelas do tipo Markdown
+
+Deve ser usado apenas e exclusivamente os algoritmos quânticos disponibilizados pela biblioteca "quantCrypt". Não deve ser implementado um algoritmo por conta própria, mas usado apenas as classes e soluções oferecidas pela quantCrypt
+
+Para manipular rotas, pastas e caminhos deverá ser usado preferencialmente a biblioteca "pathlib". Para a geração dos gráficos deverá ser usada preferencialmente a biblioteca "matplotlib"
