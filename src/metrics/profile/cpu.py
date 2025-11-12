@@ -63,8 +63,8 @@ class CPU:
         stats_map = getattr(stats, "stats", {})
 
         return {
-            "cpu_time_total": sum([values[2] for values in  stats_map.values()]),
-            "operations": [values[0] for values in  stats_map.values()],
+            # "cpu_time": [values[2] for values in  stats_map.values()],
+            # "calls": [values[0] for values in  stats_map.values()],
         }
 
     def profile_lines(self, func, *args, **kwargs) -> Dict[str, Any]:

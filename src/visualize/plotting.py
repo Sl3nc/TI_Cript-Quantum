@@ -9,7 +9,7 @@ class Plotting:
     def __init__(self) -> None:
         pass
 
-    def cpu_time(self, memory_increments: List[float], output_path: Path) -> None:
+    def cpu_time(self, times: List[float], output_path: Path) -> None:
         """Gera gráfico detalhado para a coluna "CPU Time".
 
         Ajusta o eixo Y para maior proximidade dos valores observados e adiciona
@@ -23,33 +23,30 @@ class Plotting:
         Raises:
             ValueError: Se a lista estiver vazia
         """
-        if not memory_increments:
-            raise ValueError("memory_increments (CPU Time values) must not be empty")
-
-        timestamps = list(range(len(memory_increments)))
+        timestamps = list(range(len(times)))
         title = "CPU Time"
         ylabel = "CPU Time (ms)"
 
         # Estatísticas principais
-        min_val = min(memory_increments)
-        max_val = max(memory_increments)
-        mean_val = sum(memory_increments) / len(memory_increments)
-        sorted_vals = sorted(memory_increments)
+        min_val = min(times)
+        max_val = max(times)
+        mean_val = sum(times) / len(times)
+        sorted_vals = sorted(times)
         p95_idx = int(0.95 * (len(sorted_vals) - 1))
         p95_val = sorted_vals[p95_idx]
-        last_val = memory_increments[-1]
+        last_val = times[-1]
 
         fig, ax = plt.subplots(figsize=(10, 6))
         ax.plot(
             timestamps,
-            memory_increments,
+            times,
             marker='o',
             linewidth=2,
             markersize=5,
             color='#2563eb',
             label='CPU Time'
         )
-        ax.fill_between(timestamps, memory_increments, alpha=0.15, color='#2563eb')
+        ax.fill_between(timestamps, times, alpha=0.15, color='#2563eb')
 
         # Linhas de referência
         ax.axhline(mean_val, color='#1e3a8a', linestyle='--', linewidth=1.1, label=f'Mean {mean_val:.2f} ms')
@@ -67,7 +64,7 @@ class Plotting:
 
         # Caixa resumo
         stats_text = (
-            f"Samples: {len(memory_increments)}\n"
+            f"Samples: {len(times)}\n"
             f"Min: {min_val:.2f} ms\n"
             f"Mean: {mean_val:.2f} ms\n"
             f"Max: {max_val:.2f} ms\n"
