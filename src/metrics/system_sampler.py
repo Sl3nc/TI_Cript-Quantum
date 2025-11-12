@@ -89,7 +89,7 @@ class SystemSampler:
             }
 
         avg_cpu = sum(s.cpu_percent for s in self.samples) / len(self.samples)
-        max_mem = max(s.memory_percent for s in self.samples)
+        max_mem = max(s.memory_percent for s in self.samples) * 100
 
         logger.info(
             f"action=system_stats_aggregated cpu_avg={avg_cpu:.2f} mem_max={max_mem:.2f}"
