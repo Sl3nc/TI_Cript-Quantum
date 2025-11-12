@@ -9,40 +9,94 @@ class Plotting:
     def __init__(self) -> None:
         pass
 
-    def plot_time_series(self, timestamps: List[int], values: List[float], output_path: Path, 
-                        title: str = "Time Series", ylabel: str = "Value") -> None:
-        """
-        Gera gráfico de linha para série temporal.
-        
+    def cpu_time(self, memory_increments: List[float], output_path: Path) -> None:
+        """Gera gráfico detalhado para a coluna "CPU Time".
+
+        Ajusta o eixo Y para maior proximidade dos valores observados e adiciona
+        referências estatísticas (mínimo, média, máximo, p95 e último valor),
+        além de uma caixa resumo para facilitar a análise no relatório.
+
         Args:
-            timestamps: Lista de timestamps
-            values: Lista de valores correspondentes
-            output_path: Caminho para salvar .png
-            title: Título do gráfico
-            ylabel: Label do eixo Y
-            
+            memory_increments: Lista de valores de tempo de CPU (ms)
+            output_path: Caminho onde o PNG será salvo
+
         Raises:
-            ValueError: Se listas vazias ou tamanhos incompatíveis
+            ValueError: Se a lista estiver vazia
         """
-        if not timestamps or not values:
-            raise ValueError("timestamps and values must not be empty")
-        
-        if len(timestamps) != len(values):
-            raise ValueError(f"timestamps ({len(timestamps)}) and values ({len(values)}) must have same length")
-        
+        if not memory_increments:
+            raise ValueError("memory_increments (CPU Time values) must not be empty")
+
+        timestamps = list(range(len(memory_increments)))
+        title = "CPU Time"
+        ylabel = "CPU Time (ms)"
+
+        # Estatísticas principais
+        min_val = min(memory_increments)
+        max_val = max(memory_increments)
+        mean_val = sum(memory_increments) / len(memory_increments)
+        sorted_vals = sorted(memory_increments)
+        p95_idx = int(0.95 * (len(sorted_vals) - 1))
+        p95_val = sorted_vals[p95_idx]
+        last_val = memory_increments[-1]
+
         fig, ax = plt.subplots(figsize=(10, 6))
-        ax.plot(timestamps, values, marker='o', linewidth=2, markersize=6, color='#2563eb')
+        ax.plot(
+            timestamps,
+            memory_increments,
+            marker='o',
+            linewidth=2,
+            markersize=5,
+            color='#2563eb',
+            label='CPU Time'
+        )
+        ax.fill_between(timestamps, memory_increments, alpha=0.15, color='#2563eb')
+
+        # Linhas de referência
+        ax.axhline(mean_val, color='#1e3a8a', linestyle='--', linewidth=1.1, label=f'Mean {mean_val:.2f} ms')
+        ax.axhline(min_val, color='#16a34a', linestyle=':', linewidth=1, label=f'Min {min_val:.2f} ms')
+        ax.axhline(max_val, color='#9333ea', linestyle=':', linewidth=1, label=f'Max {max_val:.2f} ms')
+        ax.axhline(p95_val, color='#dc2626', linestyle='-.', linewidth=1, label=f'P95 {p95_val:.2f} ms')
+
+        # Destaque último valor
+        ax.scatter([timestamps[-1]], [last_val], color='#dc2626', s=55, zorder=5, label=f'Last {last_val:.2f} ms')
+
+        # Ajuste de limites próximos (5% de margem)
+        span = max_val - min_val
+        margin = span * 0.05 if span > 0 else max_val * 0.05 if max_val != 0 else 1
+        ax.set_ylim(min_val - margin, max_val + margin)
+
+        # Caixa resumo
+        stats_text = (
+            f"Samples: {len(memory_increments)}\n"
+            f"Min: {min_val:.2f} ms\n"
+            f"Mean: {mean_val:.2f} ms\n"
+            f"Max: {max_val:.2f} ms\n"
+            f"P95: {p95_val:.2f} ms\n"
+            f"Last: {last_val:.2f} ms"
+        )
+        ax.text(
+            0.99,
+            0.02,
+            stats_text,
+            transform=ax.transAxes,
+            fontsize=9,
+            va='bottom',
+            ha='right',
+            bbox=dict(boxstyle='round,pad=0.35', facecolor='white', alpha=0.85, edgecolor='#2563eb')
+        )
+
         ax.set_title(title, fontsize=14, fontweight='bold')
-        ax.set_xlabel("Time (ms)", fontsize=12)
+        ax.set_xlabel("Sample Index", fontsize=12)
         ax.set_ylabel(ylabel, fontsize=12)
         ax.grid(True, alpha=0.3)
-        
+        ax.legend(fontsize=9)
+
         output_path.parent.mkdir(parents=True, exist_ok=True)
         fig.savefig(output_path, dpi=300, bbox_inches='tight')
         plt.close(fig)
 
 
-    def plot_memory_series(self, memory_samples: List[float], output_path: Path) -> None:
+    def memory_series(self, memory_samples: List[float], output_path: Path) -> None:
         """Gera gráfico detalhado de consumo de memória aproximando-se da coluna "Memory MB".
 
         Adiciona referências estatísticas (mínimo, média, máximo) e ajusta os limites
@@ -56,9 +110,6 @@ class Plotting:
         Raises:
             ValueError: Se lista vazia
         """
-        if not memory_samples:
-            raise ValueError("memory_samples must not be empty")
-
         fig, ax = plt.subplots(figsize=(10, 6))
         sample_indices = list(range(len(memory_samples)))
 

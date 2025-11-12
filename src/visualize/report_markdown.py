@@ -67,7 +67,7 @@ class ReportMarkdown:
             
             # Tabela de métricas com tabulate
             metrics_data = [
-                ["CPU Time", f"{cpu.get('cpu_time_ms', 0):.2f} ms"],
+                ["CPU Time", f"{cpu.get('cpu_time_total', 0):.2f} ms"],
                 ["CPU Usage Avarage", f"{system.get('cpu_percent_avg', 0):.2f}%"],
                 ["Memory Peak", f"{memory.get('memory_mb', 0):.2f} MB"],
                 ["Memory Usage Maximum", f"{system.get('memory_percent_max', 0):.2f}%"],

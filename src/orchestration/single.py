@@ -142,10 +142,11 @@ class Single:
         algo_dir.mkdir(parents=True, exist_ok=True)
 
         metrics = evaluation['metrics']
+        cpu_time = metrics.get("cpu_metrics", {}).get("operations", [])
         memory_increments = metrics.get("memory_metrics", {}).get("memory_increments", [])
         
         # Gráfico 1: CPU time (se houver dados de série temporal)
-        self.generate_cpu_time_plot(algo_dir, image_paths, memory_increments)
+        self.generate_cpu_time_plot(algo_dir, image_paths, cpu_time)
         
         # Gráfico 2: Memory usage
         self.generate_memory_plot(algo_dir, image_paths, memory_increments)
@@ -158,30 +159,24 @@ class Single:
         return report_path, image_paths
 
     def generate_memory_plot(self, algo_dir, image_paths, memory_increments):
-        if memory_increments:
-            memory_plot = algo_dir / f"memory.png"
-            try:
-                self.plotting.plot_memory_series(
-                    memory_increments,
-                    memory_plot
-                )
-                image_paths.append(memory_plot)
-            except Exception as e:
-                logger.warning(f"Failed to generate memory plot: {e}")
+        memory_plot = algo_dir / f"memory.png"
+        try:
+            self.plotting.memory_series(
+                memory_increments,
+                memory_plot
+            )
+            image_paths.append(memory_plot)
+        except Exception as e:
+            logger.warning(f"Failed to generate memory plot: {e}")
 
-    def generate_cpu_time_plot(self, algo_dir, image_paths, memory_increments):
-        if memory_increments:
-            cpu_time_plot = algo_dir / f"cpu_time.png"
-            try:
-                timestamps = list(range(len(memory_increments)))
-                # Placeholder: usar incrementos de memória como proxy para série temporal
-                self.plotting.plot_time_series(
-                    timestamps,
-                    memory_increments,
-                    cpu_time_plot,
-                    title=f"CPU Time",
-                    ylabel="Time Offset"
-                )
-                image_paths.append(cpu_time_plot)
-            except Exception as e:
-                logger.warning(f"Failed to generate CPU time plot: {e}")
+    def generate_cpu_time_plot(self, algo_dir, image_paths, cpu_time):
+        cpu_time_plot = algo_dir / f"cpu_time.png"
+        try:
+            # Placeholder: usar incrementos de memória como proxy para série temporal
+            self.plotting.cpu_time(
+                cpu_time,
+                cpu_time_plot,
+            )
+            image_paths.append(cpu_time_plot)
+        except Exception as e:
+            logger.warning(f"Failed to generate CPU time plot: {e}")
