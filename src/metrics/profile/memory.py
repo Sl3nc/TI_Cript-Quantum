@@ -20,7 +20,7 @@ class Memory:
                 - result: Any (retorno da função)
         """
         mem_usage = memory_usage(
-            cast(Any, (func, args, kwargs)),
+            (func, args, kwargs),
             interval=0.01,
             include_children=True,
             retval=True

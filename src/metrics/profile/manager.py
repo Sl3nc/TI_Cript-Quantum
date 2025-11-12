@@ -60,10 +60,10 @@ class Profiler:
                 - metrics: dict (todas as métricas coletadas)
         """
         self._start()
-        
+
         # Executa com trace de memória
         memory_result = Memory().trace(func, *args, **kwargs)
-        
+
         metrics = self._stop()
         metrics["memory_metrics"] = {
             "memory_mb": memory_result["peak_memory"],
