@@ -6,6 +6,7 @@ from algorithms.krypton import cipher_rounds
 from algorithms.dss import generate_and_sign
 from algorithms.kem import run_mlkem
 from algorithms.aes_gcm import cipher_aes
+from algorithms.dsa import run_dsa
 
 # Diretórios
 PROJECT_ROOT = Path().resolve()
@@ -27,6 +28,7 @@ ALGORITHMS = {
     "DSS": generate_and_sign,
     "Krypton": cipher_aes,
     "AES-GCM": cipher_rounds,
+    "DSA": run_dsa
 }
 
 # Métricas obrigatórias
