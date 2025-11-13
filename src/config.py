@@ -5,9 +5,9 @@ from pathlib import Path
 from algorithms.krypton import run_krypton
 from algorithms.dss import run_dss
 from algorithms.kem import run_kem
-from algorithms.aes_gcm import run_aes
 from algorithms.dsa import run_dsa
 from algorithms.rsa import run_rsa
+from algorithms.dh import run_diffie_hellman
 
 # Diretórios
 PROJECT_ROOT = Path().resolve()
@@ -28,9 +28,9 @@ ALGORITHMS = {
     "KEM": run_kem,
     "DSS": run_dss,
     "Krypton": run_krypton,
-    "AES-GCM": run_aes,
     "DSA": run_dsa,
-    "RSA": run_rsa
+    "RSA": run_rsa,
+    "Diffie-Hellman": run_diffie_hellman
 }
 
 # Métricas obrigatórias
