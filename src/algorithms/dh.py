@@ -11,12 +11,11 @@ def run_diffie_hellman(volume: int) -> Dict[str, Any]:
         raise ValueError(f"volume must be greater than 0, got {volume}")
     
     logger.info(f"action=Diffie-Hellman: START volume={volume}")
-    message = b'handshake data'
+    message = b'Hello World!'
+    parameters = dh.generate_parameters(generator=2, key_size=1024)
 
     for _ in range(volume):
-        parameters = dh.generate_parameters(generator=2, key_size=2048)
         server_private_key = parameters.generate_private_key()
-
         peer_private_key = parameters.generate_private_key()
         shared_key = server_private_key.exchange(peer_private_key.public_key())
 

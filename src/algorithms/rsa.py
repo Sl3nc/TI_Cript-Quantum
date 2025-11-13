@@ -9,8 +9,7 @@ def run_rsa(volume: int):
     if volume <= 0:
         raise ValueError(f"volume must be greater than 0, got {volume}")
     
-    logger.info(f"action=KEM: START volume={volume}")
-
+    logger.info(f"action=RSA: START volume={volume}")
     message = b"Hello World!"
 
     for _ in range(volume):
@@ -38,4 +37,4 @@ def run_rsa(volume: int):
             hashes.SHA256()
         )
 
-    logger.info(f"action=KEM: COMPLETE operations={volume}")
+    logger.info(f"action=RSA: COMPLETE operations={volume}")
