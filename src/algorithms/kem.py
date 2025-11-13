@@ -10,7 +10,7 @@ from quantcrypt.kem import MLKEM_1024
 
 logger = getLogger(__name__)
 
-def run_mlkem(volume: int) -> Dict[str, Any]:
+def run_kem(volume: int) -> Dict[str, Any]:
     """
     Executa operações de KEM (Key Encapsulation) usando MLKEM_1024.
     

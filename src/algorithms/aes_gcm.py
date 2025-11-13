@@ -11,7 +11,7 @@ import secrets
 
 logger = getLogger(__name__)
 
-def cipher_aes(volume: int) -> Dict[str, Any]:
+def run_aes(volume: int) -> Dict[str, Any]:
     """Executa pares encrypt/decrypt usando AES-GCM.
 
     Args:
@@ -35,8 +35,9 @@ def cipher_aes(volume: int) -> Dict[str, Any]:
     
     logger.info(f"action=AES-GCM: START volume={volume}")
     plaintext = b"Hello World"
-    key = AESGCM().generate_key(bit_length=256)
-    nonce = secrets.token_bytes(12)
+    key = AESGCM.generate_key(bit_length=128)
+    nonce = secrets.token_bytes(64)
+    
 
     for _ in range(volume):
         aesgcm = AESGCM(key)

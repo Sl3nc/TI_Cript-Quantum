@@ -11,7 +11,7 @@ from secrets import token_bytes
 logger = getLogger(__name__)
 
 
-def cipher_rounds(volume: int) -> Dict[str, Any]:
+def run_krypton(volume: int) -> Dict[str, Any]:
     """
     Executa rodadas de cifração/decifração usando Krypton.
     

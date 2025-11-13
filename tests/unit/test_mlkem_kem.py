@@ -2,24 +2,24 @@
 Testes unitários para MLKEM_1024 KEM.
 """
 from pytest import raises
-from algorithms.kem import run_mlkem
+from algorithms.kem import run_kem
 
 def test_run_mlkem_validates_volume():
     """Verifica que run_mlkem rejeita volume <= 0."""
     # Volume zero deve lançar erro
     with raises(ValueError, match="volume.*must be.*greater than 0"):
-        run_mlkem(volume=0)
+        run_kem(volume=0)
     
     # Volume negativo deve lançar erro
     with raises(ValueError, match="volume.*must be.*greater than 0"):
-        run_mlkem(volume=-100)
+        run_kem(volume=-100)
 
 
 def test_run_mlkem_returns_structure():
     """Verifica estrutura básica de retorno antes de implementação completa."""
     
     # Placeholder deve retornar dict com campos esperados
-    result = run_mlkem(volume=10, seed=42)
+    result = run_kem(volume=10, seed=42)
     
     # Estrutura mínima esperada
     assert isinstance(result, dict), "Deve retornar dict"
@@ -31,7 +31,7 @@ def test_run_mlkem_returns_structure():
 def test_run_mlkem_accepts_seed():
     """Verifica que run_mlkem aceita seed para reprodutibilidade."""
     # Deve aceitar seed sem erro
-    result = run_mlkem(volume=10, seed=12345)
+    result = run_kem(volume=10, seed=12345)
     
     assert result is not None
     

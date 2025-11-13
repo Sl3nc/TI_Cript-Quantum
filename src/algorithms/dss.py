@@ -10,7 +10,7 @@ from quantcrypt.dss import MLDSA_87
 logger = getLogger(__name__)
 
 
-def generate_and_sign(volume: int) -> Dict[str, Any]:
+def run_dss(volume: int) -> Dict[str, Any]:
     """
     Executa operações de assinatura digital usando MLDSA_87.
     
