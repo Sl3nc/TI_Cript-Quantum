@@ -21,7 +21,6 @@ wheels/
 *.egg
 MANIFEST
 *.dia.autosave
-output/
 
 # Virtual environments
 venv/
@@ -63,9 +62,6 @@ coverage.xml
 Thumbs.db
 
 # Project specific
-docs/results/**/*.png
-docs/results/**/*.md
-!docs/results/.gitkeep
 *.log
 .env*
 

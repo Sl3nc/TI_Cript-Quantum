@@ -1,35 +1,28 @@
 # TI_Cript-Quantum
 
-Programa de avaliação de algoritmos criptográficos pós-quânticos da biblioteca **quantCrypt**.
+Executor de benchmarks de algoritmos criptográficos pós-quânticos (**quantCrypt**) e clássicos
+(**cryptography**), usados como baseline comparativo.
 
 ## Objetivo
 
-Coletar métricas de desempenho e hardware durante a execução de algoritmos pós-quânticos:
-- **MLKEM_1024** (Key Encapsulation Mechanism)
-- **MLDSA_87** (Digital Signature Scheme)
-- **Krypton** (Cipher)
+Executar a carga de trabalho — e **apenas** ela. O programa não coleta métricas, não cronometra a
+si mesmo e não gera relatórios ou gráficos: a medição e a análise são feitas por programas
+externos e dedicados, que envolvem este processo. Assim o que se mede é o algoritmo, não o
+overhead da ferramenta.
 
-## Métricas Coletadas
+O programa comunica-se com o coletor externo por duas superfícies apenas: a carga executada e o
+código de saída (`0` = sucesso, `1` = falha).
 
-1. **CPU Time** (ms) - Tempo total de execução
-2. **Memory** (MB) - Consumo máximo de memória
-3. **CPU Cycles** - Ciclos de CPU utilizados
-4. **Cache Misses** - Falhas de cache L1/L2/L3
-5. **Hardware Info** - CPU, cores, frequência, RAM
+## Algoritmos suportados
 
-## Estrutura
-
-```
-src/
-├── algorithms/        # Implementações usando quantCrypt
-├── metrics/           # Profiling e coleta de métricas
-└── orchestration/     # Execução e configuração
-tests/
-├── unit/              # Testes unitários
-├── integration/       # Testes de integração
-└── contract/          # Testes de contrato
-docs/results/          # Relatórios Markdown gerados
-```
+| Nome (CLI)       | Biblioteca     | Operação por ciclo                          |
+| ---------------- | -------------- | ------------------------------------------- |
+| `KEM`            | quantCrypt     | MLKEM_1024: keygen → encaps → decaps        |
+| `DSS`            | quantCrypt     | MLDSA_87: keygen → sign → verify            |
+| `Krypton`        | quantCrypt     | Krypton: encrypt → decrypt                  |
+| `RSA`            | cryptography   | keygen (1024) → sign PSS → verify           |
+| `DSA`            | cryptography   | keygen (1024) → sign → verify               |
+| `Diffie-Hellman` | cryptography   | key exchange (1024) → HKDF                  |
 
 ## Instalação
 
@@ -37,130 +30,50 @@ docs/results/          # Relatórios Markdown gerados
 pip install -r requirements.txt
 ```
 
-## Uso Básico
+## Uso
 
 ```bash
-# Executar avaliação de um algoritmo
-python -m src.orchestration.run_single MLKEM_1024 --volume 1000
+# Um algoritmo, N operações
+python src/index.py --algorithm KEM --volume 1000
+python src/index.py -a RSA -v 500
 
-# Gerar relatório individual
-python -m src.orchestration.generate_report MLKEM_1024
+# Vários algoritmos em sequência, sob o mesmo volume
+python src/index.py -a KEM DSS Krypton -v 1000
+```
 
-# Análise de escalabilidade
-python -m src.orchestration.run_scalability MLKEM_1024 --volumes 100,500,1000,5000
+`src/index.py` é o único entrypoint. Ele insere `src/` no `sys.path`, então os módulos internos
+usam imports diretos (`from config import ...`).
+
+## Medição externa
+
+O programa foi feito para ser envolvido por um coletor. Exemplos:
+
+```bash
+/usr/bin/time -v python src/index.py -a KEM -v 1000
+perf stat -d python src/index.py -a KEM -v 1000
 ```
 
 ## Testes
 
 ```bash
-pytest
+# O layout src/ exige PYTHONPATH (nenhum pytest.ini/pyproject.toml configura isso)
+PYTHONPATH=src pytest
+PYTHONPATH=src pytest tests/unit/test_mlkem_kem.py -v
 ```
 
-## Relatórios
+## Adicionar um algoritmo
 
-Gerados em `docs/results/<algorithm>/` no formato Markdown com timestamp PT-BR.
-
-## Reprodutibilidade
-
-O projeto garante reprodutibilidade através de:
-
-### Seeds Determinísticos
-Todas as execuções utilizam seeds configuráveis:
-```python
-# config.py
-SEED = 42  # Seed global padrão
-```
-
-Cada algoritmo aceita seed como parâmetro:
-```bash
-python -m src.orchestration.run_single MLKEM_1024 --volume 1000 --seed 12345
-```
-
-### Hardware Audit
-Gere snapshot do ambiente para documentar configuração:
-```bash
-python scripts/hardware_audit.py --output audit.json
-```
-
-O audit inclui:
-- Hash SHA256 do ambiente (hardware + dependências)
-- Versão Python e implementação
-- Especificações CPU (modelo, arquitetura, frequência, núcleos)
-- Memória total e disponível
-- Versões exatas de todas as dependências
-
-### Timestamp Milissegundos
-Relatórios incluem timestamp com precisão de milissegundos (formato PT-BR):
-```text
-MLKEM_1024 - 04-11-2025 14h30m15s.123.md
-```
-
-Garante unicidade mesmo em execuções rápidas sucessivas.
-
-### Metadados nos Relatórios
-Cada relatório inclui seção completa de hardware e configuração:
-- CPU: modelo, arquitetura, frequência, núcleos
-- Memória: total, disponível
-- Sistema operacional
-- Versão Python
-- Seed utilizado
-- Volume de operações
-
-## Auditoria
-
-### Validação de Overhead
-Verifique que profiling adiciona <10% de overhead (Princípio IV):
-```bash
-python scripts/measure_overhead.py
-```
-
-Saída esperada:
-```text
-=== Overhead de Profiling ===
-Absoluto: 2.34 ms
-Relativo: 4.56%
-✓ PASS: Overhead < 10% (Princípio IV OK)
-```
-
-### Verificação de Neutralidade
-Valide que ProfilerManager é usado identicamente em todos os algoritmos:
-```bash
-python scripts/check_neutrality.py
-```
-
-Garante comparabilidade das métricas (Princípio VII).
-
-### Validação de Criptografia
-Confirme que nenhuma implementação criptográfica customizada existe:
-```bash
-# Scan manual ou script automatizado
-grep -r "def encrypt\|def decrypt\|def sign\|def verify" src/algorithms/
-# Deve retornar vazio (apenas chamadas a quantCrypt)
-```
-
-### Testes de Integração
-Execute suite completa de testes:
-```bash
-# Testes unitários
-pytest tests/unit/ -v
-
-# Testes de integração (incluindo overhead)
-pytest tests/integration/ -v
-
-# Testes de contrato
-pytest tests/contract/ -v
-
-# Coverage report
-pytest --cov=src --cov-report=html
-```
+1. Criar `src/algorithms/<nome>.py` expondo `run_<nome>(volume: int)`, que executa `volume` ciclos
+   completos e idênticos, sem nenhuma lógica de medição.
+2. Registrar a função em `ALGORITHMS`, em `src/config.py`.
+3. Adicionar o teste correspondente em `tests/unit/`.
 
 ## Conformidade
 
-Este projeto segue a [Constituição v1.0.0](.specify/memory/constitution.md):
-- **Princípio I**: Uso exclusivo de quantCrypt (sem implementações customizadas)
-- **Princípio II**: Métricas padronizadas (CPU, Memória, Ciclos, Cache, Hardware)
-- **Princípio III**: TDD obrigatório (pytest)
-- **Princípio IV**: Perfilamento com overhead <10%
-- **Princípio V**: Reprodutibilidade via seeds, versões, hardware audit
-- **Princípio VI**: Saída Markdown com tabulate
-- **Princípio VII**: Neutralidade entre algoritmos (ProfilerManager idêntico)
+Este projeto segue a [Constituição v3.0.0](.specify/memory/constitution.md):
+
+- **Princípio I**: sem criptografia própria — só quantCrypt e `cryptography`
+- **Princípio II**: instrumentação externa — nenhuma medição dentro de `src/`
+- **Princípio III**: cargas de trabalho neutras e comparáveis
+- **Princípio IV**: TDD obrigatório (pytest)
+- **Princípio V**: reprodutibilidade a partir da linha de comando
