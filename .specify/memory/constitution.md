@@ -1,25 +1,9 @@
-<!--
-Sync Impact Report
-Version: template → 1.0.0
-Modified Principles: (all newly defined)
-Added Sections: Restrições e Escopo de Avaliação; Fluxo de Desenvolvimento e Qualidade
-Removed Sections: none
-Templates Updated: 
-	- .specify/templates/plan-template.md ✅
-	- .specify/templates/spec-template.md ✅
-	- .specify/templates/tasks-template.md ✅
-	- .specify/templates/agent-file-template.md ⚠ (no direct principle refs; left unchanged)
-	- .specify/templates/checklist-template.md ⚠ (generic; left unchanged)
-Command Files: N/A (no command markdown files present)
-Deferred TODOs: none
--->
-
 # TI_Cript-Quantum Constitution
 
 ## Core Principles
 
-### I. Exclusividade quantCrypt
-O projeto DEVE usar exclusivamente a biblioteca quantCrypt para todos os algoritmos de criptografia pós-quântica. É PROIBIDO implementar algoritmos próprios ou modificar internamente os oferecidos pela biblioteca. O código de avaliação só pode orquestrar, configurar e medir execuções das classes quantCrypt. Qualquer dependência que replique lógica criptográfica existente configura violação.
+### I. Sem Criptografia Própria
+É PROIBIDO implementar, reimplementar ou modificar internamente a lógica de qualquer algoritmo criptográfico. O código de avaliação só pode orquestrar, configurar e medir execuções de bibliotecas de terceiros estabelecidas. Para algoritmos pós-quânticos, a biblioteca DEVE ser exclusivamente quantCrypt. Para algoritmos clássicos usados como baseline comparativo (ex.: RSA, DSA, Diffie-Hellman), a biblioteca DEVE ser `cryptography`. Nenhuma outra biblioteca criptográfica é permitida sem emenda desta Constituição, e nenhuma dependência pode replicar lógica criptográfica já oferecida por elas.
 
 ### II. Métricas Padronizadas Multi-Algoritmo
 Todos os algoritmos são avaliados sob um conjunto ÚNICO e IMUTÁVEL de métricas: Tempo de CPU, Uso de memória, Ciclos de CPU, Cache misses, Informações de hardware (arquitetura, núcleos, frequência). As medições DEVEM ser coletadas de forma consistente entre execuções e armazenadas com carimbo de data/hora e identificação do algoritmo + problema resolvido. Resultados DEVEM ser publicados em tabelas Markdown usando a biblioteca tabulate. Nenhuma métrica pode ser omitida sem justificativa documentada.
@@ -31,17 +15,17 @@ Antes de qualquer código de implementação, DEVEM existir testes pytest que in
 Cada sessão de avaliação DEVE instrumentar: cProfile (tempo global), line_profiler (linhas críticas), memory_profiler (picos e crescimento), psutil (uso de CPU/mem/processo), py-cpuinfo (detalhes de hardware). Perfis não podem alterar lógica do algoritmo. Logs DEVEM ser estruturados (chave=valor) e conter data e hora da execução. Hardware é coletado uma vez por série de testes e referenciado nas saídas.
 
 ### V. Reprodutibilidade e Neutralidade Experimental
-Execuções DEVEM: (a) usar seeds fixos onde aplicável, (b) registrar ambiente (SO, versão Python, versão quantCrypt), (c) seguir procedimentos idênticos para todos os algoritmos, exceto pelos desafios e métodos que executam, (d) armazenar parâmetros de entrada e tamanho de desafio. Não há exigência de número mínimo de execuções, porém cada execução precisa ser rastreável e repetível. Otimizações específicas para favorecer um algoritmo são PROIBIDAS. Alterações no ambiente DEVEM disparar nova série completa de medições.
+Execuções DEVEM: (a) usar seeds fixos onde aplicável, (b) registrar ambiente (SO, versão Python, versão quantCrypt, versão de `cryptography`), (c) seguir procedimentos idênticos para todos os algoritmos, exceto pelos desafios e métodos que executam, (d) armazenar parâmetros de entrada e tamanho de desafio. Não há exigência de número mínimo de execuções, porém cada execução precisa ser rastreável e repetível. Otimizações específicas para favorecer um algoritmo são PROIBIDAS. Alterações no ambiente DEVEM disparar nova série completa de medições.
 
 ## Restrições e Escopo de Avaliação
 
 - Linguagem: Python (versão definida no ambiente de execução). 
-- Biblioteca criptográfica: SOMENTE quantCrypt.
-- Domínios de problema: diferentes desafios criptográficos característicos de cada algoritmo (ex.: troca de chaves, assinatura, encapsulamento de segredo), sempre com métricas padronizadas.
+- Bibliotecas criptográficas: quantCrypt para algoritmos pós-quânticos (KEM, DSS, Krypton); `cryptography` para algoritmos clássicos de baseline comparativo (RSA, DSA, Diffie-Hellman). Nenhuma outra biblioteca é permitida sem emenda.
+- Domínios de problema: diferentes desafios criptográficos característicos de cada algoritmo (ex.: troca de chaves, assinatura, encapsulamento de segredo), tanto pós-quânticos quanto clássicos (usados como baseline comparativo), sempre com métricas padronizadas.
 - Dependências para métricas: cProfile, line_profiler, memory_profiler, psutil, py-cpuinfo.
 - Dependências para análise estatística: numpy, pandas.
 - Dependência para relatório: tabulate (saída Markdown). 
-- Armazenamento de resultados: diretório dedicado `docs/results/` com tabelas + metadados de ambiente.
+- Armazenamento de resultados: diretório dedicado `output/` (raiz do projeto, não versionado) com tabelas + metadados de ambiente.
 - Proibido: implementação manual de algoritmos, uso de ferramentas não declaradas para profilamento criptográfico.
 
 ## Fluxo de Desenvolvimento e Qualidade
@@ -63,11 +47,12 @@ Qualidade: (a) Todas as cinco princípios verificados; (b) Nenhum artefato sem t
 - Manutenção: Projeto de único mantenedor — responsabilidade total de conformidade e versionamento. 
 - Verificação Pré-Commit: Checklist interno confirmando cada princípio. 
 - Politica de Versionamento (SemVer): MAJOR para remoção/redesign de princípio; MINOR para novo princípio/seção ou expansão material; PATCH para ajustes linguísticos e clarificações. 
-- Processo de Emenda: (1) Propor mudança com justificativa; (2) Atualizar Constituição + Relatório de Impacto; (3) Ajustar templates dependentes; (4) Bump de versão conforme regra. 
+- Processo de Emenda: (1) Propor mudança com justificativa; (2) Atualizar Constituição; (3) Bump de versão conforme regra. 
 - Conformidade Experimental: Toda nova avaliação deve incluir: testes iniciais, script de perfilamento, tabela de resultados, metadados de ambiente. 
 - Ferramentas Permitidas: Somente listadas nas seções de princípios e restrições. Adições requerem emenda (MINOR). 
 - Neutralidade: Não permitir ajustes de parâmetros que beneficiem seletivamente um algoritmo sem replicar para os demais. 
 - Auditoria Interna: Relatório simples (Markdown) anexado aos resultados listando hashes de scripts e versões de dependências. 
 - TODOs: Devem ser resolvidos antes de versão MINOR/Major; PATCH pode conter TODO apenas se não afeta princípios.
 
-**Version**: 1.0.0 | **Ratified**: 2025-11-04 | **Last Amended**: 2025-11-04
+**Version**: 2.0.0 | **Ratified**: 2025-11-04 | **Last Amended**: 2026-08-12
+
