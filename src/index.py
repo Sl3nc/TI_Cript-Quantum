@@ -24,23 +24,24 @@ ALGORITHMS = {
     "Diffie-Hellman": run_diffie_hellman,
 }
 
+basicConfig(level=INFO, format="[%(levelname)s] %(message)s")
+logger = getLogger(__name__)
+
 
 def cli() -> tuple[str, int]:
-    basicConfig(level=INFO, format="[%(levelname)s] %(message)s")
 
-    parser = ArgumentParser(description="Execute uma avaliação única de algoritmo")
+    parser = ArgumentParser(description="Execute a single algorithm evaluation")
     _ = parser.add_argument(
         "--algorithm",
         "-a",
-        default=[DEFAULT_ALGORITM],
-        type=list[str],
-        nargs="+",
+        type=str,
+        default=DEFAULT_ALGORITM,
         choices=list(ALGORITHMS.keys()),
-        help="Algoritmos a executar",
+        help="Algorithms to run",
     )
 
     _ = parser.add_argument(
-        "--volume", "-v", type=int, default=DEFAULT_VOLUME, help="Número de operações"
+        "--volume", "-v", type=int, default=DEFAULT_VOLUME, help="Number of operations"
     )
 
     args = parser.parse_args()
@@ -59,20 +60,19 @@ def is_input_valid(algorithm: str, volume: int) -> None:
 
 if __name__ == "__main__":
     algorithm, volume = cli()
-    logger = getLogger(__name__)
 
     print(
         f"{'=' * 60}",
-        f"Runing: {algorithm} - Volume: {volume}",
+        f"Running: {algorithm} - Volume: {volume}",
         f"{'=' * 60}",
         sep="\n",
     )
 
     try:
         is_input_valid(algorithm, volume)
-        logger.info(f"START time={datetime.now(UTC).isoformat()}")
+        logger.info(f"START - {datetime.now(UTC).strftime('%H:%M:%S')}")
         ALGORITHMS[algorithm](volume)
-        logger.info(f"COMPLETE time={datetime.now(UTC).isoformat()}")
+        logger.info(f"COMPLETE - {datetime.now(UTC).strftime('%H:%M:%S')}")
     except ValueError as e:
         logger.error(f"FAILED error={e}")
         raise SystemExit(1)
