@@ -1,15 +1,8 @@
 from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.primitives.asymmetric import rsa
-from logging import getLogger
+from cryptography.hazmat.primitives.asymmetric import padding, rsa
 
-logger = getLogger(__name__)
 
 def run_rsa(volume: int):
-    if volume <= 0:
-        raise ValueError(f"volume must be greater than 0, got {volume}")
-    
-    logger.info(f"action=RSA: START volume={volume}")
     message = b"Hello World!"
 
     for _ in range(volume):
@@ -20,10 +13,9 @@ def run_rsa(volume: int):
         signature = private_key.sign(
             message,
             padding.PSS(
-                mgf=padding.MGF1(hashes.SHA256()),
-                salt_length=padding.PSS.MAX_LENGTH
+                mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH
             ),
-            hashes.SHA256()
+            hashes.SHA256(),
         )
 
         public_key = private_key.public_key()
@@ -31,10 +23,7 @@ def run_rsa(volume: int):
             signature,
             message,
             padding.PSS(
-                mgf=padding.MGF1(hashes.SHA256()),
-                salt_length=padding.PSS.MAX_LENGTH
+                mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH
             ),
-            hashes.SHA256()
+            hashes.SHA256(),
         )
-
-    logger.info(f"action=RSA: COMPLETE operations={volume}")
