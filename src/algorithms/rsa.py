@@ -3,6 +3,9 @@ from cryptography.hazmat.primitives.asymmetric import padding, rsa
 
 
 def run_rsa(volume: int):
+    if volume <= 0:
+        raise ValueError(f"volume must be greater than 0, got {volume}")
+
     message = b"Hello World!"
 
     for _ in range(volume):
