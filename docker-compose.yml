@@ -1,0 +1,28 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ti-cript-quantum:latest
+    platform: linux/amd64
+    entrypoint: ["python", "src/index.py"]
+    command: ["--algorithm", "KEM", "--volume", "1000"]
+    volumes:
+      - ./src:/app/src:ro
+
+  cadvisor:
+    image: ghcr.io/google/cadvisor:0.56.2
+    container_name: cadvisor
+    privileged: true
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /dev/disk:/dev/disk:ro
+    devices:
+      - /dev/kmsg
+    command:
+      - "--docker_only=true"
