@@ -13,6 +13,9 @@ def run_dss(volume: int):
         volume: Número de operações (sign/verify pairs)
     """
 
+    if volume <= 0:
+        raise ValueError(f"volume must be greater than 0, got {volume}")
+
     dss = MLDSA_87()
     message = b"Hello World"
 
