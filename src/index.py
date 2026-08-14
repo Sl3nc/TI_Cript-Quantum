@@ -1,62 +1,78 @@
 from argparse import ArgumentParser
+from datetime import UTC, datetime
 from logging import INFO, basicConfig, getLogger
-from sys import path
+from pathlib import Path
 
-from config import ALGORITHMS, DEFAULT_ALGORITM, DEFAULT_VOLUME, DEVELOP_DIR
-from orchestration.serialization import Serialization
-from orchestration.single import Single
+from algorithms.dh import run_diffie_hellman
+from algorithms.dsa import run_dsa
+from algorithms.dss import run_dss
+from algorithms.kem import run_kem
+from algorithms.krypton import run_krypton
+from algorithms.rsa import run_rsa
+
+PROJECT_ROOT = Path().cwd()
+
+DEFAULT_ALGORITM = "KEM"
+DEFAULT_VOLUME = 1
+
+ALGORITHMS = {
+    "KEM": run_kem,
+    "DSS": run_dss,
+    "Krypton": run_krypton,
+    "DSA": run_dsa,
+    "RSA": run_rsa,
+    "Diffie-Hellman": run_diffie_hellman,
+}
+
+basicConfig(level=INFO, format="[%(levelname)s] %(message)s")
+logger = getLogger(__name__)
 
 
-def cli():
-    basicConfig(level=INFO, format="[%(levelname)s] %(message)s")
+def cli() -> tuple[str, int]:
 
-    parser = ArgumentParser(description="Execute uma avaliação única de algoritmo")
-    parser.add_argument(
+    parser = ArgumentParser(description="Execute a single algorithm evaluation")
+    _ = parser.add_argument(
         "--algorithm",
         "-a",
-        default=[DEFAULT_ALGORITM],
-        nargs="+",
+        type=str,
+        default=DEFAULT_ALGORITM,
         choices=list(ALGORITHMS.keys()),
-        help="Algoritmos a executar",
+        help="Algorithms to run",
     )
 
-    parser.add_argument(
-        "--volume", "-v", type=int, default=DEFAULT_VOLUME, help="Número de operações"
+    _ = parser.add_argument(
+        "--volume", "-v", type=int, default=DEFAULT_VOLUME, help="Number of operations"
     )
 
     args = parser.parse_args()
-    return args
+    return (args.algorithm, args.volume)
+
+
+def is_input_valid(algorithm: str, volume: int) -> None:
+    if volume <= 0:
+        raise ValueError(f"volume must be greater than 0, got {volume}")
+
+    if algorithm not in ALGORITHMS:
+        raise ValueError(
+            f"Unknown algorithm '{algorithm}'. Valid options: {', '.join(ALGORITHMS.keys())}"
+        )
 
 
 if __name__ == "__main__":
-    if str(DEVELOP_DIR) not in path:
-        path.insert(0, str(DEVELOP_DIR))
-
-    args = cli()
-
-    print(f"\n{'=' * 60}")
-    print("Executando:", *args.algorithm)
-    print(f"Volume: {args.volume}")
-    print(f"{'=' * 60}\n")
-
-    try:
-        if len(args.algorithm) > 1:
-            Serialization().run(
-                algorithms=args.algorithm,
-                volume=args.volume,
-            )
-        else:
-            Single().run(
-                algorithm=args.algorithm[0],
-                volume=args.volume,
-            )
-    except Exception as e:
-        getLogger(__name__).error(f"action=cli: FAILED error={e}")
-        raise SystemExit(1)
+    algorithm, volume = cli()
 
     print(
-        f"\n{'=' * 20}",
-        "Execução concluída",
-        f"{'=' * 20}",
+        f"{'=' * 60}",
+        f"Running: {algorithm} - Volume: {volume}",
+        f"{'=' * 60}",
+        sep="\n",
     )
-    print(f"{'=' * 60}\n")
+
+    try:
+        is_input_valid(algorithm, volume)
+        logger.info(f"START - {datetime.now(UTC).strftime('%H:%M:%S')}")
+        ALGORITHMS[algorithm](volume)
+        logger.info(f"COMPLETE - {datetime.now(UTC).strftime('%H:%M:%S')}")
+    except ValueError as e:
+        logger.error(f"FAILED error={e}")
+        raise SystemExit(1)

@@ -1,42 +1,24 @@
 """
 Krypton Cipher usando quantCrypt.
-
-Princípio I da Constituição: Uso EXCLUSIVO de quantCrypt.
 """
-from typing import Dict, Any
-from logging import getLogger
-from quantcrypt.cipher import Krypton
+
 from secrets import token_bytes
 
-logger = getLogger(__name__)
+from quantcrypt.cipher import Krypton
 
 
-def run_krypton(volume: int) -> Dict[str, Any]:
+def run_krypton(volume: int):
     """
     Executa rodadas de cifração/decifração usando Krypton.
-    
+
     Args:
         volume: Número de operações (encrypt/decrypt pairs)
-        seed: Seed para PRNG (reprodutibilidade)
-        
-    Returns:
-        Dict com:
-            - operations_completed: int
-            - algorithm: str
-            - volume: int
-            - seed: int
-            
-    Raises:
-        ValueError: Se volume <= 0
     """
-    # Validação obrigatória
     if volume <= 0:
         raise ValueError(f"volume must be greater than 0, got {volume}")
-    
-    logger.info(f"action=Krypton: START volume={volume}")
+
     plaintext = b"Hello World"
-        
-    # Simular cifragens
+
     for _ in range(volume):
         secret_key = token_bytes(64)
         krypton = Krypton(secret_key)
@@ -50,5 +32,3 @@ def run_krypton(volume: int) -> Dict[str, Any]:
         krypton.finish_decryption()
 
         assert plaintext_copy == plaintext
-
-    logger.info(f"action=Krypton: COMPLETE operations={volume}")
