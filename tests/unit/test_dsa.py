@@ -4,7 +4,7 @@ Testes unitários para DSA (baseline clássico).
 
 from pytest import raises
 
-from ...src.algorithms.dsa import run_dsa
+from algorithms.dsa import run_dsa
 
 
 def test_run_dsa_validates_volume():

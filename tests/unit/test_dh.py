@@ -4,7 +4,7 @@ Testes unitários para Diffie-Hellman (baseline clássico).
 
 from pytest import raises
 
-from ...src.algorithms.dh import run_diffie_hellman
+from algorithms.dh import run_diffie_hellman
 
 
 def test_run_diffie_hellman_validates_volume():

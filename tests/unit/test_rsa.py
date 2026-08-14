@@ -4,7 +4,7 @@ Testes unitários para RSA (baseline clássico).
 
 from pytest import raises
 
-from ...src.algorithms.rsa import run_rsa
+from algorithms.rsa import run_rsa
 
 
 def test_run_rsa_validates_volume():

@@ -4,8 +4,8 @@ Testes de integração da orquestração: validação + execução, sem coleta d
 
 from pytest import raises
 
-from ...src.orchestration.serialization import Serialization
-from ...src.orchestration.single import Single
+from orchestration.serialization import Serialization
+from orchestration.single import Single
 
 
 def test_single_runs_algorithm():
