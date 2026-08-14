@@ -36,13 +36,12 @@ pip install -r requirements.txt
 # Um algoritmo, N operações
 python src/index.py --algorithm KEM --volume 1000
 python src/index.py -a RSA -v 500
-
-# Vários algoritmos em sequência, sob o mesmo volume
-python src/index.py -a KEM DSS Krypton -v 1000
 ```
 
-`src/index.py` é o único entrypoint. Ele insere `src/` no `sys.path`, então os módulos internos
-usam imports diretos (`from config import ...`).
+`--algorithm`/`-a` aceita um único valor por execução (`KEM`, `DSS`, `Krypton`, `DSA`, `RSA`,
+`Diffie-Hellman`).
+
+`src/index.py` é o único entrypoint. Ao ser executado como script.
 
 ## Medição externa
 
@@ -58,19 +57,19 @@ perf stat -d python src/index.py -a KEM -v 1000
 ```bash
 # O layout src/ exige PYTHONPATH (nenhum pytest.ini/pyproject.toml configura isso)
 PYTHONPATH=src pytest
-PYTHONPATH=src pytest tests/unit/test_mlkem_kem.py -v
+PYTHONPATH=src pytest tests/test_mlkem_kem.py -v
 ```
 
 ## Adicionar um algoritmo
 
 1. Criar `src/algorithms/<nome>.py` expondo `run_<nome>(volume: int)`, que executa `volume` ciclos
    completos e idênticos, sem nenhuma lógica de medição.
-2. Registrar a função em `ALGORITHMS`, em `src/config.py`.
-3. Adicionar o teste correspondente em `tests/unit/`.
+2. Registrar a função no dicionário `ALGORITHMS`, em `src/index.py`.
+3. Adicionar o teste correspondente em `tests/`.
 
 ## Conformidade
 
-Este projeto segue a [Constituição v3.0.0](.specify/memory/constitution.md):
+Este projeto segue a [Constituição v3.0.1](.specify/memory/constitution.md):
 
 - **Princípio I**: sem criptografia própria — só quantCrypt e `cryptography`
 - **Princípio II**: instrumentação externa — nenhuma medição dentro de `src/`
