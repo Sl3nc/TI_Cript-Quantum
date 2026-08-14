@@ -50,7 +50,7 @@ def cli() -> tuple[str, int]:
 
 def is_input_valid(algorithm: str, volume: int) -> None:
     if volume <= 0:
-        raise ValueError(f"Volume must be greater than 0, got {volume}")
+        raise ValueError(f"volume must be greater than 0, got {volume}")
 
     if algorithm not in ALGORITHMS:
         raise ValueError(
