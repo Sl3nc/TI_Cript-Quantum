@@ -14,6 +14,9 @@ def run_krypton(volume: int):
     Args:
         volume: Número de operações (encrypt/decrypt pairs)
     """
+    if volume <= 0:
+        raise ValueError(f"volume must be greater than 0, got {volume}")
+
     plaintext = b"Hello World"
 
     for _ in range(volume):
