@@ -4,6 +4,9 @@ from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 
 
 def run_diffie_hellman(volume: int):
+    if volume <= 0:
+        raise ValueError(f"volume must be greater than 0, got {volume}")
+
     message = b"Hello World!"
     parameters = dh.generate_parameters(generator=2, key_size=1024)
 
