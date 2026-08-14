@@ -1,3 +1,3 @@
 """
-Testes do projeto TI_Cript-Quantum.
+Testes unitários.
 """
