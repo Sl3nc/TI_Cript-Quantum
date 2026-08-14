@@ -12,7 +12,7 @@ from orchestration.single import Single
 from metrics.aggregator import aggregate_series
 from visualize.report_markdown import ReportMarkdown
 from visualize.plotting import Plotting
-from config import ALGORITHMS, RESULTS_DIR
+from index import ALGORITHMS, RESULTS_DIR
 
 logger = logging.getLogger(__name__)
 

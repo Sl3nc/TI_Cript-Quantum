@@ -4,7 +4,7 @@ Orquestração de execução única de algoritmo com profiling.
 User Story 1: Executar avaliação única com coleta de métricas completas.
 User Story 2: Gerar relatório Markdown individual.
 """
-from config import DEFAULT_VOLUME, ALGORITHMS, RESULTS_DIR
+from index import DEFAULT_VOLUME, ALGORITHMS, RESULTS_DIR
 from metrics.profile.manager import Profiler
 from visualize.report_markdown import ReportMarkdown
 from visualize.plotting import Plotting
