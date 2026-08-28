@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-#include "algorithms/kem.h"
+#include "../src/algorithms/kem.h"
 
 int main(void) {
     if (run_kem(0) != WORKLOAD_INVALID_VOLUME) {

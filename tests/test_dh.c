@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-#include "algorithms/dh.h"
+#include "../src/algorithms/dh.h"
 
 int main(void) {
     if (run_diffie_hellman(0) != WORKLOAD_INVALID_VOLUME) {

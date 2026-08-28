@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-#include "algorithms/aes_gcm.h"
+#include "../src/algorithms/aes_gcm.h"
 
 int main(void) {
     if (run_aes_gcm(0) != WORKLOAD_INVALID_VOLUME) {

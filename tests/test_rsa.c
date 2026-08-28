@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-#include "algorithms/rsa.h"
+#include "../src/algorithms/rsa.h"
 
 int main(void) {
     if (run_rsa(0) != WORKLOAD_INVALID_VOLUME) {

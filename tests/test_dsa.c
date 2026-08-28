@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-#include "algorithms/dsa.h"
+#include "../src/algorithms/dsa.h"
 
 int main(void) {
     if (run_dsa(0) != WORKLOAD_INVALID_VOLUME) {

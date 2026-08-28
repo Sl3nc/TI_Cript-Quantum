@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-#include "algorithms/dss.h"
+#include "../src/algorithms/dss.h"
 
 int main(void) {
     if (run_dss(0) != WORKLOAD_INVALID_VOLUME) {
