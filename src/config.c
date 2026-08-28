@@ -2,20 +2,20 @@
 
 #include "config.h"
 
-#include "algorithms/aes_gcm.h"
-#include "algorithms/dh.h"
-#include "algorithms/dsa.h"
 #include "algorithms/dss.h"
+#include "algorithms/ecdh.h"
+#include "algorithms/ecdsa.h"
 #include "algorithms/kem.h"
 #include "algorithms/rsa.h"
+#include "algorithms/sphincs.h"
 
 const algorithm_entry ALGORITHMS[] = {
     {"KEM", run_kem},
     {"DSS", run_dss},
-    {"AES-GCM", run_aes_gcm},
-    {"DSA", run_dsa},
+    {"SPHINCS+", run_sphincs},
+    {"ECDSA", run_ecdsa},
     {"RSA", run_rsa},
-    {"Diffie-Hellman", run_diffie_hellman},
+    {"ECDH", run_ecdh},
 };
 
 const size_t ALGORITHMS_COUNT = sizeof(ALGORITHMS) / sizeof(ALGORITHMS[0]);

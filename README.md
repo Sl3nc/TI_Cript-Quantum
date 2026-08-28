@@ -15,10 +15,10 @@ código de saída (`0` = sucesso, `1` = falha).
 | ---------------- | ---------- | ------------------------------------------- |
 | `KEM`            | liboqs     | ML-KEM-1024: keygen → encaps → decaps       |
 | `DSS`            | liboqs     | ML-DSA-87: keygen → sign → verify           |
-| `AES-GCM`        | libcrypto  | AES-256-GCM: encrypt → decrypt (tag verify) |
-| `RSA`            | libcrypto  | keygen (1024) → sign PSS → verify           |
-| `DSA`            | libcrypto  | keygen (1024/160) → sign → verify           |
-| `Diffie-Hellman` | libcrypto  | key exchange (1024) → HKDF                  |
+| `SPHINCS+`       | liboqs     | SPHINCS+-SHA2-256s: keygen → sign → verify  |
+| `RSA`            | libcrypto  | keygen (15360) → sign PSS/SHA-512 → verify  |
+| `ECDSA`          | libcrypto  | P-521: keygen → sign SHA-512 → verify       |
+| `ECDH`           | libcrypto  | P-521: key exchange → HKDF/SHA-512          |
 
 ## Dependências
 
