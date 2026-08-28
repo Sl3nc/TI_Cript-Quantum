@@ -48,28 +48,28 @@ classDiagram
         +run_dss(volume) workload_status
     }
 
+    class SPHINCS_Plus {
+        <<algorithms/sphincs.c>>
+        liboqs — SPHINCS+-SHA2-256s-simple
+        +run_sphincs(volume) workload_status
+    }
+
     class RSA {
         <<algorithms/rsa.c>>
-        libcrypto (OpenSSL 3.x)
+        libcrypto (OpenSSL 3.x, RSA-15360)
         +run_rsa(volume) workload_status
     }
 
-    class DSA {
-        <<algorithms/dsa.c>>
-        libcrypto (OpenSSL 3.x)
-        +run_dsa(volume) workload_status
+    class ECDSA {
+        <<algorithms/ecdsa.c>>
+        libcrypto (OpenSSL 3.x, secp521r1)
+        +run_ecdsa(volume) workload_status
     }
 
-    class DiffieHellman {
-        <<algorithms/dh.c>>
-        libcrypto (OpenSSL 3.x)
-        +run_diffie_hellman(volume) workload_status
-    }
-
-    class AES_GCM {
-        <<algorithms/aes_gcm.c>>
-        libcrypto (OpenSSL 3.x, AES-256-GCM)
-        +run_aes_gcm(volume) workload_status
+    class ECDH {
+        <<algorithms/ecdh.c>>
+        libcrypto (OpenSSL 3.x, secp521r1)
+        +run_ecdh(volume) workload_status
     }
 
     class liboqs {
@@ -87,24 +87,24 @@ classDiagram
 
     workload_fn ..> KEM
     workload_fn ..> DSS
+    workload_fn ..> SPHINCS_Plus
+    workload_fn ..> ECDSA
     workload_fn ..> RSA
-    workload_fn ..> DSA
-    workload_fn ..> DiffieHellman
-    workload_fn ..> AES_GCM
+    workload_fn ..> ECDH
 
     KEM --> workload_status
     DSS --> workload_status
+    SPHINCS_Plus --> workload_status
+    ECDSA --> workload_status
     RSA --> workload_status
-    DSA --> workload_status
-    DiffieHellman --> workload_status
-    AES_GCM --> workload_status
+    ECDH --> workload_status
 
     KEM ..> liboqs : uses
     DSS ..> liboqs : uses
+    SPHINCS_Plus ..> liboqs : uses
+    ECDSA ..> libcrypto : uses
     RSA ..> libcrypto : uses
-    DSA ..> libcrypto : uses
-    DiffieHellman ..> libcrypto : uses
-    AES_GCM ..> libcrypto : uses
+    ECDH ..> libcrypto : uses
 
     note for Main "Único entrypoint da CLI (getopt_long).\nDespacha um workload por execução\ne retorna EXIT_FAILURE em caso de falha,\npara que um coletor externo detecte via exit code."
 ```
