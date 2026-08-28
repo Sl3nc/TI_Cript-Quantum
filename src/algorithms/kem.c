@@ -15,11 +15,11 @@ workload_status run_kem(long volume) {
         return WORKLOAD_ERROR;
     }
 
-    uint8_t *public_key = malloc(kem->length_public_key);
-    uint8_t *secret_key = malloc(kem->length_secret_key);
-    uint8_t *ciphertext = malloc(kem->length_ciphertext);
-    uint8_t *shared_secret_e = malloc(kem->length_shared_secret);
-    uint8_t *shared_secret_d = malloc(kem->length_shared_secret);
+    uint8_t *public_key = OQS_MEM_malloc(kem->length_public_key);
+    uint8_t *secret_key = OQS_MEM_malloc(kem->length_secret_key);
+    uint8_t *ciphertext = OQS_MEM_malloc(kem->length_ciphertext);
+    uint8_t *shared_secret_e = OQS_MEM_malloc(kem->length_shared_secret);
+    uint8_t *shared_secret_d = OQS_MEM_malloc(kem->length_shared_secret);
 
     workload_status status = WORKLOAD_OK;
 

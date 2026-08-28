@@ -17,9 +17,9 @@ workload_status run_dss(long volume) {
         return WORKLOAD_ERROR;
     }
 
-    uint8_t *public_key = malloc(sig->length_public_key);
-    uint8_t *secret_key = malloc(sig->length_secret_key);
-    uint8_t *signature = malloc(sig->length_signature);
+    uint8_t *public_key = OQS_MEM_malloc(sig->length_public_key);
+    uint8_t *secret_key = OQS_MEM_malloc(sig->length_secret_key);
+    uint8_t *signature = OQS_MEM_malloc(sig->length_signature);
 
     workload_status status = WORKLOAD_OK;
 
