@@ -5,7 +5,7 @@
 
 #include "rsa.h"
 
-#define RSA_KEY_BITS 1024
+#define RSA_KEY_BITS 15360
 
 static const unsigned char MESSAGE[] = "Hello World!";
 static const size_t MESSAGE_LEN = sizeof(MESSAGE) - 1;
@@ -32,7 +32,7 @@ static EVP_PKEY *generate_key(void) {
 static int configure_pss(EVP_PKEY_CTX *ctx) {
     return EVP_PKEY_CTX_set_rsa_padding(ctx, RSA_PKCS1_PSS_PADDING) == 1 &&
            EVP_PKEY_CTX_set_rsa_pss_saltlen(ctx, RSA_PSS_SALTLEN_MAX) == 1 &&
-           EVP_PKEY_CTX_set_rsa_mgf1_md(ctx, EVP_sha256()) == 1;
+           EVP_PKEY_CTX_set_rsa_mgf1_md(ctx, EVP_sha512()) == 1;
 }
 
 static int sign_message(EVP_MD_CTX *md_ctx, EVP_PKEY *pkey, unsigned char **signature,
@@ -41,7 +41,7 @@ static int sign_message(EVP_MD_CTX *md_ctx, EVP_PKEY *pkey, unsigned char **sign
 
     EVP_MD_CTX_reset(md_ctx);
 
-    if (EVP_DigestSignInit(md_ctx, &pkey_ctx, EVP_sha256(), NULL, pkey) != 1 ||
+    if (EVP_DigestSignInit(md_ctx, &pkey_ctx, EVP_sha512(), NULL, pkey) != 1 ||
         !configure_pss(pkey_ctx)) {
         return 0;
     }
@@ -63,7 +63,7 @@ static int verify_message(EVP_MD_CTX *md_ctx, EVP_PKEY *pkey, const unsigned cha
 
     EVP_MD_CTX_reset(md_ctx);
 
-    if (EVP_DigestVerifyInit(md_ctx, &pkey_ctx, EVP_sha256(), NULL, pkey) != 1 ||
+    if (EVP_DigestVerifyInit(md_ctx, &pkey_ctx, EVP_sha512(), NULL, pkey) != 1 ||
         !configure_pss(pkey_ctx)) {
         return 0;
     }
