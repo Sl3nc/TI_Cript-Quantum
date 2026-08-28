@@ -2,10 +2,10 @@ set(WORKLOAD_TESTS
     test_config
     test_kem
     test_dss
-    test_aes_gcm
+    test_sphincs
     test_rsa
-    test_dsa
-    test_dh
+    test_ecdsa
+    test_ecdh
 )
 
 foreach(test_name IN LISTS WORKLOAD_TESTS)

@@ -11,14 +11,26 @@ código de saída (`0` = sucesso, `1` = falha).
 
 ## Algoritmos suportados
 
-| Nome (CLI)       | Biblioteca | Operação por ciclo                          |
-| ---------------- | ---------- | ------------------------------------------- |
-| `KEM`            | liboqs     | ML-KEM-1024: keygen → encaps → decaps       |
-| `DSS`            | liboqs     | ML-DSA-87: keygen → sign → verify           |
-| `AES-GCM`        | libcrypto  | AES-256-GCM: encrypt → decrypt (tag verify) |
-| `RSA`            | libcrypto  | keygen (1024) → sign PSS → verify           |
-| `DSA`            | libcrypto  | keygen (1024/160) → sign → verify           |
-| `Diffie-Hellman` | libcrypto  | key exchange (1024) → HKDF                  |
+| Nome (CLI) | Biblioteca | Operação por ciclo                         |
+| ---------- | ---------- | ------------------------------------------ |
+| `KEM`      | liboqs     | ML-KEM-1024: keygen → encaps → decaps      |
+| `DSS`      | liboqs     | ML-DSA-87: keygen → sign → verify          |
+| `SPHINCS+` | liboqs     | SPHINCS+-SHA2-256s: keygen → sign → verify |
+| `RSA`      | libcrypto  | keygen (15360) → sign PSS/SHA-512 → verify |
+| `ECDSA`    | libcrypto  | P-521: keygen → sign SHA-512 → verify      |
+| `ECDH`     | libcrypto  | P-521: key exchange (2 lados)              |
+
+## Pares clássico × pós-quântico
+
+Cada par abaixo compara um algoritmo clássico com seu equivalente pós-quântico, igualados tanto
+na operação executada por ciclo quanto no nível de segurança (Categoria NIST 5, ~256 bits, em
+todos os pares):
+
+| Par              | Clássico | Pós-Quântico | Operação por ciclo (os dois lados)                     |
+| ---------------- | -------- | ------------ | ------------------------------------------------------ |
+| Assinatura (RSA) | `RSA`    | `SPHINCS+`   | keygen → sign → verify                                 |
+| Assinatura (DSA) | `ECDSA`  | `DSS`        | keygen → sign → verify                                 |
+| Troca de chave   | `ECDH`   | `KEM`        | keygen → troca/encapsulamento → verificação (`memcmp`) |
 
 ## Dependências
 

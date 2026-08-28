@@ -24,10 +24,10 @@ add_library(workloads STATIC
     src/config.c
     src/algorithms/kem.c
     src/algorithms/dss.c
-    src/algorithms/aes_gcm.c
+    src/algorithms/sphincs.c
     src/algorithms/rsa.c
-    src/algorithms/dsa.c
-    src/algorithms/dh.c
+    src/algorithms/ecdsa.c
+    src/algorithms/ecdh.c
 )
 target_include_directories(workloads PUBLIC src)
 target_link_libraries(workloads PUBLIC OQS::oqs OpenSSL::Crypto)

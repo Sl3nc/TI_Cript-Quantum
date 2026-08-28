@@ -2,7 +2,7 @@
 
 ## What this is
 
-A benchmark *runner* for cryptographic algorithms, written in C11: it executes post-quantum algorithms via **liboqs** (ML-KEM-1024, ML-DSA-87) alongside classical algorithms and a symmetric cipher via **libcrypto** (OpenSSL 3.x — RSA, DSA, Diffie-Hellman, AES-256-GCM) as a comparison baseline, and nothing else. It never measures itself; an external collector wraps the process.
+A benchmark *runner* for cryptographic algorithms, written in C11: it executes post-quantum algorithms via **liboqs** (ML-KEM-1024, ML-DSA-87, SPHINCS+-SHA2-256s) alongside classical algorithms via **libcrypto** (OpenSSL 3.x — RSA-15360, ECDSA P-521, ECDH P-521) as a comparison baseline, and nothing else. It never measures itself; an external collector wraps the process.
 
 
 ## Commands
