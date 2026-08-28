@@ -18,7 +18,7 @@ código de saída (`0` = sucesso, `1` = falha).
 | `SPHINCS+`       | liboqs     | SPHINCS+-SHA2-256s: keygen → sign → verify  |
 | `RSA`            | libcrypto  | keygen (15360) → sign PSS/SHA-512 → verify  |
 | `ECDSA`          | libcrypto  | P-521: keygen → sign SHA-512 → verify       |
-| `ECDH`           | libcrypto  | P-521: key exchange → HKDF/SHA-512          |
+| `ECDH`           | libcrypto  | P-521: key exchange (2 lados)               |
 
 ## Dependências
 
