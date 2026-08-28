@@ -6,7 +6,6 @@ A benchmark *runner* for cryptographic algorithms: it executes post-quantum algo
 **quantCrypt** (MLKEM_1024, MLDSA_87, Krypton) alongside classical algorithms via the
 `cryptography` library (RSA, DSA, Diffie-Hellman) as a comparison baseline, and nothing else.
 
-- Read `.specify/memory/constitution.md` before changing anything
 
 ## Commands
 
