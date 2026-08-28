@@ -2,35 +2,39 @@
 
 ## What this is
 
-A benchmark *runner* for cryptographic algorithms: it executes post-quantum algorithms via
-**quantCrypt** (MLKEM_1024, MLDSA_87, Krypton) alongside classical algorithms via the
-`cryptography` library (RSA, DSA, Diffie-Hellman) as a comparison baseline, and nothing else.
+A benchmark *runner* for cryptographic algorithms, written in C11: it executes post-quantum algorithms via **liboqs** (ML-KEM-1024, ML-DSA-87) alongside classical algorithms and a symmetric cipher via **libcrypto** (OpenSSL 3.x — RSA, DSA, Diffie-Hellman, AES-256-GCM) as a comparison baseline, and nothing else. It never measures itself; an external collector wraps the process.
 
 
 ## Commands
 
-All commands assume the repo root as the working directory. Source modules use bare imports
-(`from config import ...`, `from algorithms.kem import ...`), so `src/` must be on `sys.path`.
-
 ```bash
-pip install -r requirements.txt
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build
 
-# Run benchmarks (script-directory auto-insertion puts src/ on sys.path[0] for you)
-python src/index.py --algorithm KEM --volume 1000
-python src/index.py -a RSA -v 500
-python src/index.py -a KEM DSS Krypton -v 1000   # several algorithms, same volume, sequentially
+# Run benchmarks (one workload per invocation)
+./build/benchmark --algorithm KEM --volume 1000
+./build/benchmark -a RSA -v 500
 
-# Run tests (src/ layout requires PYTHONPATH; no pytest.ini/pyproject.toml configures this)
-PYTHONPATH=src pytest
-PYTHONPATH=src pytest tests/unit/test_mlkem_kem.py -v
+# Run tests
+ctest --test-dir build --output-on-failure
+ctest --test-dir build -R test_kem --output-on-failure
 ```
+
+Requires OpenSSL >= 3.0 dev headers and an installed liboqs. If liboqs is not available locally, build and run through Docker instead — `docker compose build app` compiles liboqs from source.
 
 ## Architecture
 
-**`src/algorithms/*.py`** — each module exposes a single `run_<name>(volume: int)` that validates
-`volume > 0`, runs `volume` full operation cycles, and returns `None`. No measurement logic inside
-the loop.
+**`src/workload.h`** — the shared contract: `workload_status` (`WORKLOAD_OK`,
+`WORKLOAD_INVALID_VOLUME`, `WORKLOAD_ERROR`) and `workload_fn`.
 
-**`src/index.py`** is the only CLI entrypoint (argparse), dispatching to `Single` or
-`Serialization` depending on how many `--algorithm` values were passed, and converting any
-exception into `SystemExit(1)` so an external collector can detect failure by exit code.
+**`src/algorithms/<name>.c`** — each module exposes a single
+`workload_status run_<name>(long volume)` that returns `WORKLOAD_INVALID_VOLUME` for `volume <= 0`,
+allocates algorithm objects and fixed buffers *outside* the loop, runs `volume` full operation
+cycles, and checks correctness unconditionally (`assert` is banned — it disappears under `NDEBUG`).
+No measurement logic anywhere.
+
+**`src/config.c`** — the `ALGORITHMS` array plus `workload_lookup`; the single extension point.
+
+**`src/index.c`** is the only CLI entrypoint (`getopt_long` with `--algorithm/-a` and
+`--volume/-v`), dispatching one workload per run and returning `EXIT_FAILURE` on any failure so an
+external collector can detect it by exit code.
