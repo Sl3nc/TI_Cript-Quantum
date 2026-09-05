@@ -74,9 +74,20 @@ docker compose build app
 docker compose run --rm app --algorithm KEM --volume 1000
 ```
 
-`docker-compose.yml` também sobe cAdvisor e Prometheus para a coleta externa. Atenção: o
-`scrape_interval` do cAdvisor é de 10 s — execuções curtas podem terminar antes da primeira
-amostra, então use volumes altos ou um coletor por processo.
+`docker-compose.yml` também sobe cAdvisor, Prometheus e Grafana para a coleta e visualização
+externas. Atenção: o `scrape_interval` do cAdvisor é de 10 s — execuções curtas podem terminar
+antes da primeira amostra, então use volumes altos ou um coletor por processo.
+
+Para identificar o algoritmo nas métricas do cAdvisor (label `container_label_algorithm`),
+rode com `-l algorithm=<nome>`:
+
+```bash
+docker compose run --rm -l algorithm=KEM app -a KEM -v 4000
+```
+
+O Grafana fica em `http://localhost:3000` (login definido em `.env`, copie de `.env.example`)
+com o datasource do Prometheus e o dashboard "Benchmarks por algoritmo (cAdvisor)" já
+provisionados — os painéis agrupam CPU, memória, rede e disco por `container_label_algorithm`.
 
 ## Testes
 
