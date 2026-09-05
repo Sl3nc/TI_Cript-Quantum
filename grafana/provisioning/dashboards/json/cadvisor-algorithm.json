@@ -2,7 +2,7 @@
   "title": "Benchmarks por algoritmo (cAdvisor)",
   "uid": "cadvisor-algorithm",
   "schemaVersion": 39,
-  "version": 1,
+  "version": 2,
   "editable": true,
   "timezone": "browser",
   "time": {
@@ -32,6 +32,9 @@
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
       "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": { "defaults": { "unit": "percentunit" }, "overrides": [] },
+      "options": {
+        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean"] }
+      },
       "targets": [
         {
           "expr": "sum by (container_label_algorithm) (rate(container_cpu_usage_seconds_total{container_label_algorithm=~\"$algorithm\"}[1m]))",
@@ -47,6 +50,9 @@
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
       "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
+      "options": {
+        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean"] }
+      },
       "targets": [
         {
           "expr": "sum by (container_label_algorithm) (container_memory_usage_bytes{container_label_algorithm=~\"$algorithm\"})",
