@@ -2,8 +2,8 @@ set(WORKLOAD_TESTS
     test_config
     test_kem
     test_dss
-    test_sphincs
-    test_rsa
+    test_mceliece
+    test_ecies
     test_ecdsa
     test_ecdh
 )
