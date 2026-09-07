@@ -11,14 +11,14 @@ código de saída (`0` = sucesso, `1` = falha).
 
 ## Algoritmos suportados
 
-| Nome (CLI) | Biblioteca | Operação por ciclo                         |
-| ---------- | ---------- | ------------------------------------------ |
-| `KEM`      | liboqs     | ML-KEM-1024: keygen → encaps → decaps      |
-| `DSS`      | liboqs     | ML-DSA-87: keygen → sign → verify          |
-| `SPHINCS+` | liboqs     | SPHINCS+-SHA2-256s: keygen → sign → verify |
-| `RSA`      | libcrypto  | keygen (15360) → sign PSS/SHA-512 → verify |
-| `ECDSA`    | libcrypto  | P-521: keygen → sign SHA-512 → verify      |
-| `ECDH`     | libcrypto  | P-521: key exchange (2 lados)              |
+| Nome (CLI) | Biblioteca | Operação por ciclo                                                                  |
+| ---------- | ---------- | ----------------------------------------------------------------------------------- |
+| `KEM`      | liboqs     | ML-KEM-1024: keygen → encaps → decaps                                               |
+| `DSS`      | liboqs     | ML-DSA-87: keygen → sign → verify                                                   |
+| `MCELIECE` | liboqs     | Classic-McEliece-8192128f: keygen → encaps+AES-GCM encrypt → decaps+AES-GCM decrypt |
+| `ECIES`    | libcrypto  | P-521: keygen → ECDH+AES-GCM encrypt → ECDH+AES-GCM decrypt                         |
+| `ECDSA`    | libcrypto  | P-521: keygen → sign SHA-512 → verify                                               |
+| `ECDH`     | libcrypto  | P-521: key exchange (2 lados)                                                       |
 
 ## Pares clássico × pós-quântico
 
@@ -28,7 +28,7 @@ todos os pares):
 
 | Par              | Clássico | Pós-Quântico | Operação por ciclo (os dois lados)                     |
 | ---------------- | -------- | ------------ | ------------------------------------------------------ |
-| Assinatura (RSA) | `RSA`    | `SPHINCS+`   | keygen → sign → verify                                 |
+| Cifração (ECIES) | `ECIES`  | `MCELIECE`   | keygen → encrypt → decrypt                             |
 | Assinatura (DSA) | `ECDSA`  | `DSS`        | keygen → sign → verify                                 |
 | Troca de chave   | `ECDH`   | `KEM`        | keygen → troca/encapsulamento → verificação (`memcmp`) |
 
@@ -50,7 +50,7 @@ cmake --build build
 
 ```bash
 ./build/benchmark --algorithm KEM --volume 1000
-./build/benchmark -a RSA -v 500
+./build/benchmark -a ECIES -v 500
 ```
 
 Padrões: `--algorithm KEM`, `--volume 1`. Uma carga por invocação.

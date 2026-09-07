@@ -5,7 +5,7 @@
 
 int main(void) {
     static const char *const expected[] = {
-        "KEM", "DSS", "SPHINCS+", "ECDSA", "RSA", "ECDH"
+        "KEM", "DSS", "MCELIECE", "ECDSA", "ECIES", "ECDH"
     };
     const size_t expected_count = sizeof(expected) / sizeof(expected[0]);
 

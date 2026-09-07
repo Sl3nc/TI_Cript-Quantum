@@ -24,8 +24,8 @@ add_library(workloads STATIC
     src/config.c
     src/algorithms/kem.c
     src/algorithms/dss.c
-    src/algorithms/sphincs.c
-    src/algorithms/rsa.c
+    src/algorithms/mceliece.c
+    src/algorithms/ecies.c
     src/algorithms/ecdsa.c
     src/algorithms/ecdh.c
 )

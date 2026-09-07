@@ -5,16 +5,16 @@
 #include "algorithms/dss.h"
 #include "algorithms/ecdh.h"
 #include "algorithms/ecdsa.h"
+#include "algorithms/ecies.h"
 #include "algorithms/kem.h"
-#include "algorithms/rsa.h"
-#include "algorithms/sphincs.h"
+#include "algorithms/mceliece.h"
 
 const algorithm_entry ALGORITHMS[] = {
     {"KEM", run_kem},
     {"DSS", run_dss},
-    {"SPHINCS+", run_sphincs},
+    {"MCELIECE", run_mceliece},
     {"ECDSA", run_ecdsa},
-    {"RSA", run_rsa},
+    {"ECIES", run_ecies},
     {"ECDH", run_ecdh},
 };
 

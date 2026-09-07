@@ -48,16 +48,16 @@ classDiagram
         +run_dss(volume) workload_status
     }
 
-    class SPHINCS_Plus {
-        <<algorithms/sphincs.c>>
-        liboqs — SPHINCS+-SHA2-256s-simple
-        +run_sphincs(volume) workload_status
+    class MCELIECE {
+        <<algorithms/mceliece.c>>
+        liboqs — Classic-McEliece-8192128f
+        +run_mceliece(volume) workload_status
     }
 
-    class RSA {
-        <<algorithms/rsa.c>>
-        libcrypto (OpenSSL 3.x, RSA-15360)
-        +run_rsa(volume) workload_status
+    class ECIES {
+        <<algorithms/ecies.c>>
+        libcrypto (OpenSSL 3.x, secp521r1)
+        +run_ecies(volume) workload_status
     }
 
     class ECDSA {
@@ -87,23 +87,23 @@ classDiagram
 
     workload_fn ..> KEM
     workload_fn ..> DSS
-    workload_fn ..> SPHINCS_Plus
+    workload_fn ..> MCELIECE
     workload_fn ..> ECDSA
-    workload_fn ..> RSA
+    workload_fn ..> ECIES
     workload_fn ..> ECDH
 
     KEM --> workload_status
     DSS --> workload_status
-    SPHINCS_Plus --> workload_status
+    MCELIECE --> workload_status
     ECDSA --> workload_status
-    RSA --> workload_status
+    ECIES --> workload_status
     ECDH --> workload_status
 
     KEM ..> liboqs : uses
     DSS ..> liboqs : uses
-    SPHINCS_Plus ..> liboqs : uses
+    MCELIECE ..> liboqs : uses
     ECDSA ..> libcrypto : uses
-    RSA ..> libcrypto : uses
+    ECIES ..> libcrypto : uses
     ECDH ..> libcrypto : uses
 
     note for Main "Único entrypoint da CLI (getopt_long).\nDespacha um workload por execução\ne retorna EXIT_FAILURE em caso de falha,\npara que um coletor externo detecte via exit code."
