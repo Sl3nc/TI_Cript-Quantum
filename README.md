@@ -87,7 +87,7 @@ docker compose run --rm -l algorithm=KEM app -a KEM -v 4000
 
 O Grafana fica em `http://localhost:3000` (login definido em `.env`, copie de `.env.example`)
 com o datasource do Prometheus e o dashboard "Benchmarks por algoritmo (cAdvisor)" já
-provisionados — os painéis agrupam CPU, memória, rede e disco por `container_label_algorithm`.
+provisionados — os painéis agrupam CPU e memória por `container_label_algorithm`.
 
 ## Testes
 
