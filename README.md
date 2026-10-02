@@ -82,15 +82,21 @@ milissegundos. Ajuste com `-e BENCH_LINGER=<segundos>` (use `0` para desativar; 
 maior ou igual ao `scrape_interval`).
 
 Para identificar o algoritmo nas métricas do cAdvisor (label `container_label_algorithm`),
-rode com `-l algorithm=<nome>`:
+rode com `-l algorithm=<nome>`. O painel "CPU por operação" também usa o label `volume`
+para normalizar a CPU pelo número de ciclos executados:
 
 ```bash
-docker compose run --rm -l algorithm=KEM app -a KEM -v 4000
+docker compose run --rm -l algorithm=KEM -l volume=4000 app -a KEM -v 4000
 ```
 
 O Grafana fica em `http://localhost:3000` (login definido em `.env`, copie de `.env.example`)
 com o datasource do Prometheus e o dashboard "Benchmarks por algoritmo (cAdvisor)" já
 provisionados — os painéis agrupam CPU e memória por `container_label_algorithm`.
+
+O painel **"CPU por operação (CPU-s por ciclo)"** divide a CPU total consumida pela execução
+pelo `volume`, permitindo comparar algoritmos pelo **custo** e não pela duração. O painel de
+CPU% mede apenas **ocupação** do núcleo (duty cycle): execuções curtas aparecem com percentual
+menor por diluição na janela de 1 min, mesmo saturando o núcleo enquanto rodam.
 
 ## Testes
 
