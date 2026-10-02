@@ -67,7 +67,7 @@ perf stat -d ./build/benchmark -a KEM -v 1000
 ## Docker
 
 A imagem compila o liboqs estaticamente a partir do fonte (tag fixada em `LIBOQS_VERSION`) e
-entrega apenas o binário no estágio final.
+entrega o binário e um pequeno wrapper de entrypoint (`scripts/entrypoint.sh`) no estágio final.
 
 ```bash
 docker compose build app
@@ -75,8 +75,11 @@ docker compose run --rm app --algorithm KEM --volume 1000
 ```
 
 `docker-compose.yml` também sobe cAdvisor, Prometheus e Grafana para a coleta e visualização
-externas. Atenção: o `scrape_interval` do cAdvisor é de 10 s — execuções curtas podem terminar
-antes da primeira amostra, então use volumes altos ou um coletor por processo.
+externas. Para que execuções curtas não sejam subnotificadas, a imagem mantém o container vivo
+por alguns segundos após a carga (`BENCH_LINGER`, default 7 s) e o `scrape_interval` do cAdvisor
+é de 5 s — assim a leitura final do contador cumulativo é sempre coletada, mesmo em runs de
+milissegundos. Ajuste com `-e BENCH_LINGER=<segundos>` (use `0` para desativar; deve ser
+maior ou igual ao `scrape_interval`).
 
 Para identificar o algoritmo nas métricas do cAdvisor (label `container_label_algorithm`),
 rode com `-l algorithm=<nome>`:

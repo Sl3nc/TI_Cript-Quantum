@@ -40,9 +40,11 @@ RUN apt-get update \
     && useradd -m -u 1000 appuser
 
 COPY --from=builder /build/build/benchmark /app/benchmark
+COPY scripts/entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 
 USER appuser
 WORKDIR /app
 
-ENTRYPOINT ["/app/benchmark"]
+ENTRYPOINT ["/app/entrypoint.sh"]
 CMD ["--algorithm", "KEM", "--volume", "10000"]
