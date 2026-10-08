@@ -2,7 +2,7 @@
   "title": "Benchmarks por algoritmo (cAdvisor)",
   "uid": "cadvisor-algorithm",
   "schemaVersion": 39,
-  "version": 4,
+  "version": 14,
   "editable": true,
   "timezone": "browser",
   "time": {
@@ -47,6 +47,7 @@
     {
       "id": 2,
       "title": "Memoria (uso)",
+      "description": "Memória dos containers vistos pelo cAdvisor nos últimos 15 s. O filtro evita que o Prometheus mantenha o último valor por até 5 min após o container terminar; pode haver uma pequena cauda durante o BENCH_LINGER.",
       "type": "timeseries",
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
       "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -56,7 +57,7 @@
       },
       "targets": [
         {
-          "expr": "sum by (container_label_algorithm) (container_memory_usage_bytes{container_label_algorithm=~\"$algorithm\"})",
+          "expr": "sum by (container_label_algorithm) (container_memory_usage_bytes{container_label_algorithm=~\"$algorithm\"} and on (id, instance) (container_last_seen > time() - 15))",
           "legendFormat": "{{container_label_algorithm}}",
           "refId": "A"
         }
