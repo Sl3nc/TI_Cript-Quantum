@@ -24,6 +24,7 @@ services:
       - /dev/kmsg
     command:
       - "--docker_only=true"
+      - "--allow_dynamic_housekeeping=false"
 
   prometheus:
     image: prom/prometheus:latest

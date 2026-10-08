@@ -2,7 +2,7 @@
   "title": "Benchmarks por algoritmo (cAdvisor)",
   "uid": "cadvisor-algorithm",
   "schemaVersion": 39,
-  "version": 2,
+  "version": 14,
   "editable": true,
   "timezone": "browser",
   "time": {
@@ -27,7 +27,8 @@
   "panels": [
     {
       "id": 1,
-      "title": "CPU (taxa de uso)",
+      "title": "CPU (ocupação de 1 núcleo)",
+      "description": "Taxa de uso de CPU do container (média móvel de 1 min, em fração de 1 núcleo). Mede OCUPAÇÃO (duty cycle), não custo por operação: execuções curtas ficam diluídas na janela e aparecem com % menor, mesmo saturando o núcleo enquanto rodam. Para comparar algoritmos, use o painel 'CPU por operação'.",
       "type": "timeseries",
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
       "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -46,6 +47,7 @@
     {
       "id": 2,
       "title": "Memoria (uso)",
+      "description": "Memória dos containers vistos pelo cAdvisor nos últimos 15 s. O filtro evita que o Prometheus mantenha o último valor por até 5 min após o container terminar; pode haver uma pequena cauda durante o BENCH_LINGER.",
       "type": "timeseries",
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
       "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -55,9 +57,87 @@
       },
       "targets": [
         {
-          "expr": "sum by (container_label_algorithm) (container_memory_usage_bytes{container_label_algorithm=~\"$algorithm\"})",
+          "expr": "sum by (container_label_algorithm) (container_memory_usage_bytes{container_label_algorithm=~\"$algorithm\"} and on (id, instance) (container_last_seen > time() - 15))",
           "legendFormat": "{{container_label_algorithm}}",
           "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "CPU por operação (CPU-s por ciclo)",
+      "description": "CPU total consumida pela execução dividida pelo volume (número de ciclos). Normaliza pelo trabalho, removendo o viés de duração do painel de ocupação — assim a comparação entre algoritmos fica justa. Requer o label de container 'volume' (rode com `-l volume=<N>`); execuções sem esse label são ignoradas.",
+      "type": "table",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "CPU total (s)" },
+            "properties": [
+              { "id": "unit", "value": "s" },
+              { "id": "decimals", "value": 2 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "CPU por operação (s)" },
+            "properties": [
+              { "id": "unit", "value": "s" },
+              { "id": "decimals", "value": 2 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Volume" },
+            "properties": [
+              { "id": "unit", "value": "none" },
+              { "id": "decimals", "value": 0 }
+            ]
+          }
+        ]
+      },
+      "options": { "showHeader": true },
+      "transformations": [
+        { "id": "labelsToFields", "options": { "mode": "columns" } },
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              { "targetField": "container_label_volume", "destinationType": "number" }
+            ],
+            "fields": {}
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "mode": "binary",
+            "binary": { "left": "Value", "operator": "/", "right": "container_label_volume" },
+            "alias": "CPU por operação (s)",
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": { "Time": true },
+            "renameByName": {
+              "container_label_algorithm": "Algoritmo",
+              "container_label_volume": "Volume",
+              "Value": "CPU total (s)"
+            }
+          }
+        }
+      ],
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum by (container_label_algorithm, container_label_volume) (last_over_time(container_cpu_usage_seconds_total{container_label_algorithm=~\"$algorithm\", container_label_volume=~\".+\"}[$__range]))",
+          "legendFormat": "{{container_label_algorithm}}",
+          "instant": true,
+          "range": false,
+          "format": "table"
         }
       ]
     }
