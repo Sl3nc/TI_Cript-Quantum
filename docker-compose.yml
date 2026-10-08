@@ -7,6 +7,19 @@ services:
     platform: linux/amd64
     container_name: ti_cript_quantum
 
+  app-profile:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: profiling
+    image: ti-cript-quantum-profile:latest
+    platform: linux/amd64
+    container_name: ti_cript_quantum_profile
+    environment:
+      - PUSHGATEWAY_URL=http://pushgateway:9091/metrics/job/benchmark
+    depends_on:
+      - pushgateway
+
   cadvisor:
     image: ghcr.io/google/cadvisor:0.56.2
     container_name: cadvisor
@@ -41,6 +54,13 @@ services:
       - '--web.enable-lifecycle'
     depends_on:
       - cadvisor
+
+  pushgateway:
+    image: prom/pushgateway:latest
+    container_name: pushgateway
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:9091:9091"
 
   grafana:
     image: grafana/grafana:latest

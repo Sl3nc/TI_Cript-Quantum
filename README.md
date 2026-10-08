@@ -98,6 +98,56 @@ pelo `volume`, permitindo comparar algoritmos pelo **custo** e não pela duraç�
 CPU% mede apenas **ocupação** do núcleo (duty cycle): execuções curtas aparecem com percentual
 menor por diluição na janela de 1 min, mesmo saturando o núcleo enquanto rodam.
 
+### Profiling por etapa
+
+Além da imagem de execução, o `Dockerfile` tem um estágio `profiling` que linka instrumentação
+por etapa (via `-Wl,--wrap` nas funções que os módulos chamam diretamente). O binário padrão
+permanece sem qualquer medição — a lógica fica em `profiling/instrument.c`, compilada só com
+`-DBENCH_PROFILE=ON`.
+
+```bash
+docker compose build app-profile
+docker compose up -d pushgateway prometheus grafana cadvisor
+docker compose run --rm -l volume=1000 -l algorithm=DSS app-profile -a DSS -v 1000
+```
+
+O entrypoint de profiling descobre o algoritmo e o volume a partir dos próprios argumentos
+(`-a`/`-v`), envia a soma e a contagem por etapa ao serviço `pushgateway`, que o Prometheus raspa
+(job `pushgateway`, com `honor_labels: true`). A média por etapa no Grafana é `sum/count`:
+
+```promql
+sum by (algorithm, step) (benchmark_step_seconds_sum)
+/
+sum by (algorithm, step) (benchmark_step_seconds_count)
+```
+
+As etapas cobertas, por algoritmo:
+
+| Algoritmo | Etapas |
+| --------- | ------ |
+| `KEM`      | keygen, encaps, decaps |
+| `DSS`      | keygen, sign, verify |
+| `MCELIECE` | keygen, encaps, kdf, encrypt, decaps, kdf, decrypt |
+| `ECIES`    | keygen, derive, kdf, encrypt, derive, kdf, decrypt |
+| `ECDSA`    | keygen, sign, verify |
+| `ECDH`     | keygen, derive (dois lados) |
+
+Observações:
+
+- O divisor é o número de ciclos (`volume`), então o valor é o tempo de cada etapa **por ciclo**.
+  Etapas que ocorrem mais de uma vez por ciclo (keygen de ECIES/ECDH, derive, kdf, AEAD) somam
+  todas as ocorrências. A métrica `benchmark_step_calls` traz o número de chamadas, permitindo a
+  média por chamada, se desejado.
+- As funções auxiliares `static` dos módulos (KDF e AEAD) não são envolvíveis pelo linker; suas
+  etapas são compostas pelas chamadas EVP que usam (`EVP_Digest` e as três chamadas de cada lado
+  do AES-GCM).
+- O wrap só reescreve chamadas diretas do programa: não mede o trabalho interno das bibliotecas,
+  apenas o que o runner executa.
+- Os painéis **"Tempo medio por etapa"** e **"Tempo acumulado por etapa"** mostram os resultados
+  para todos os algoritmos. Como o Pushgateway guarda o último valor, cada execução substitui a
+  anterior. O custo da instrumentação é de ~17 ns por chamada, desprezível frente às dezenas de
+  microssegundos de cada operação.
+
 ## Testes
 
 ```bash

@@ -140,6 +140,88 @@
           "format": "table"
         }
       ]
+    },
+    {
+      "id": 4,
+      "title": "Tempo medio por etapa",
+      "description": "Tempo de parede medio por etapa e por ciclo (soma das chamadas dividida pelo numero de ciclos) na ultima execucao enviada ao Pushgateway. Uma linha por algoritmo e uma coluna por etapa; celulas vazias sao etapas que nao se aplicam ao algoritmo. Requer a imagem de profiling (docker compose build app-profile).",
+      "type": "table",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 16 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "unit": "s", "decimals": 2 },
+        "overrides": []
+      },
+      "options": { "showHeader": true },
+      "transformations": [
+        { "id": "labelsToFields", "options": { "mode": "columns" } },
+        {
+          "id": "groupingToMatrix",
+          "options": {
+            "columnField": "step",
+            "rowField": "algorithm",
+            "valueField": "Value"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": { "Time": true },
+            "renameByName": { "algorithm\\step": "Algoritmo" }
+          }
+        }
+      ],
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum by (algorithm, step) (benchmark_step_seconds_sum) / sum by (algorithm, step) (benchmark_step_seconds_count)",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Tempo acumulado por etapa",
+      "description": "Tempo de parede total gasto em cada etapa durante a ultima execucao enviada ao Pushgateway. Uma linha por algoritmo e uma coluna por etapa; a media por ciclo esta no painel acima.",
+      "type": "table",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 26 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "unit": "s", "decimals": 2 },
+        "overrides": []
+      },
+      "options": { "showHeader": true },
+      "transformations": [
+        { "id": "labelsToFields", "options": { "mode": "columns" } },
+        {
+          "id": "groupingToMatrix",
+          "options": {
+            "columnField": "step",
+            "rowField": "algorithm",
+            "valueField": "Value"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": { "Time": true },
+            "renameByName": { "algorithm\\step": "Algoritmo" }
+          }
+        }
+      ],
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum by (algorithm, step) (benchmark_step_seconds_sum)",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        }
+      ]
     }
   ]
 }

@@ -28,9 +28,12 @@ WORKDIR /build
 COPY CMakeLists.txt ./
 COPY src ./src
 COPY tests ./tests
+COPY profiling ./profiling
 
 RUN cmake -S . -B build -GNinja -DCMAKE_BUILD_TYPE=Release \
-    && cmake --build build
+    && cmake --build build \
+    && cmake -S . -B build-profile -GNinja -DCMAKE_BUILD_TYPE=Release -DBENCH_PROFILE=ON \
+    && cmake --build build-profile --target benchmark
 
 FROM --platform=linux/amd64 debian:bookworm-slim AS runtime
 
@@ -47,4 +50,20 @@ USER appuser
 WORKDIR /app
 
 ENTRYPOINT ["/app/entrypoint.sh"]
+CMD ["--algorithm", "KEM", "--volume", "10000"]
+
+FROM runtime AS profiling
+
+USER root
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /build/build-profile/benchmark /app/benchmark
+COPY scripts/entrypoint-profile.sh /app/entrypoint-profile.sh
+RUN chmod +x /app/entrypoint-profile.sh
+
+USER appuser
+
+ENTRYPOINT ["/app/entrypoint-profile.sh"]
 CMD ["--algorithm", "KEM", "--volume", "10000"]
