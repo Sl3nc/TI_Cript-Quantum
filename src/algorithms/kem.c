@@ -5,12 +5,30 @@
 
 #include "kem.h"
 
-workload_status run_kem(long volume) {
+static const char *kem_algorithm(int effort) {
+    switch (effort) {
+    case 1:
+        return OQS_KEM_alg_ml_kem_512;
+    case 3:
+        return OQS_KEM_alg_ml_kem_768;
+    case 5:
+        return OQS_KEM_alg_ml_kem_1024;
+    default:
+        return NULL;
+    }
+}
+
+workload_status run_kem(long volume, int effort) {
     if (volume <= 0) {
         return WORKLOAD_INVALID_VOLUME;
     }
 
-    OQS_KEM *kem = OQS_KEM_new(OQS_KEM_alg_ml_kem_1024);
+    const char *name = kem_algorithm(effort);
+    if (name == NULL) {
+        return WORKLOAD_INVALID_EFFORT;
+    }
+
+    OQS_KEM *kem = OQS_KEM_new(name);
     if (kem == NULL) {
         return WORKLOAD_ERROR;
     }

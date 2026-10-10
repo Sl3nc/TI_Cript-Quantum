@@ -50,7 +50,7 @@ USER appuser
 WORKDIR /app
 
 ENTRYPOINT ["/app/entrypoint.sh"]
-CMD ["--algorithm", "KEM", "--volume", "10000"]
+CMD ["--algorithm", "KEM", "--effort", "5", "--volume", "10000"]
 
 FROM runtime AS profiling
 
@@ -66,4 +66,4 @@ RUN chmod +x /app/entrypoint-profile.sh
 USER appuser
 
 ENTRYPOINT ["/app/entrypoint-profile.sh"]
-CMD ["--algorithm", "KEM", "--volume", "10000"]
+CMD ["--algorithm", "KEM", "--effort", "5", "--volume", "10000"]

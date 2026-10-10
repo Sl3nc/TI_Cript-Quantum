@@ -2,7 +2,7 @@
   "title": "Benchmarks por algoritmo (cAdvisor)",
   "uid": "cadvisor-algorithm",
   "schemaVersion": 39,
-  "version": 14,
+  "version": 17,
   "editable": true,
   "timezone": "browser",
   "time": {
@@ -14,13 +14,36 @@
     "list": [
       {
         "name": "algorithm",
-        "type": "query",
-        "datasource": { "type": "prometheus", "uid": "prometheus" },
-        "query": "label_values(container_label_algorithm)",
+        "label": "Algoritmo",
+        "type": "custom",
+        "query": "KEM,DSS,MCELIECE,ECIES,ECDSA,ECDH",
         "multi": true,
         "includeAll": true,
+        "allValue": ".*",
         "current": { "text": "All", "value": "$__all" },
-        "refresh": 2
+        "options": [
+          { "text": "KEM", "value": "KEM" },
+          { "text": "DSS", "value": "DSS" },
+          { "text": "MCELIECE", "value": "MCELIECE" },
+          { "text": "ECIES", "value": "ECIES" },
+          { "text": "ECDSA", "value": "ECDSA" },
+          { "text": "ECDH", "value": "ECDH" }
+        ]
+      },
+      {
+        "name": "effort",
+        "label": "Nível de segurança",
+        "type": "custom",
+        "query": "1,3,5",
+        "multi": true,
+        "includeAll": true,
+        "allValue": "1|3|5",
+        "current": { "text": "All", "value": "$__all" },
+        "options": [
+          { "text": "1", "value": "1" },
+          { "text": "3", "value": "3" },
+          { "text": "5", "value": "5" }
+        ]
       }
     ]
   },
@@ -28,7 +51,7 @@
     {
       "id": 1,
       "title": "CPU (ocupação de 1 núcleo)",
-      "description": "Taxa de uso de CPU do container (média móvel de 1 min, em fração de 1 núcleo). Mede OCUPAÇÃO (duty cycle), não custo por operação: execuções curtas ficam diluídas na janela e aparecem com % menor, mesmo saturando o núcleo enquanto rodam. Para comparar algoritmos, use o painel 'CPU por operação'.",
+      "description": "Taxa de uso de CPU do container (média móvel de 1 min, em fração de 1 núcleo). Mede OCUPAÇÃO (duty cycle), não custo por operação: execuções curtas ficam diluídas na janela e aparecem com % menor, mesmo saturando o núcleo enquanto rodam. Para comparar algoritmos, use o painel 'CPU por operação'. Cada série é um par algoritmo · nível; requer o label de container 'effort' (rode com -l effort=<N>).",
       "type": "timeseries",
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
       "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -38,8 +61,8 @@
       },
       "targets": [
         {
-          "expr": "sum by (container_label_algorithm) (rate(container_cpu_usage_seconds_total{container_label_algorithm=~\"$algorithm\"}[1m]))",
-          "legendFormat": "{{container_label_algorithm}}",
+          "expr": "label_join(sum by (container_label_algorithm, container_label_effort) (rate(container_cpu_usage_seconds_total{container_label_algorithm=~\"$algorithm\", container_label_effort=~\"$effort\"}[1m])), \"algo_effort\", \" · nível \", \"container_label_algorithm\", \"container_label_effort\")",
+          "legendFormat": "{{algo_effort}}",
           "refId": "A"
         }
       ]
@@ -47,7 +70,7 @@
     {
       "id": 2,
       "title": "Memoria (uso)",
-      "description": "Memória dos containers vistos pelo cAdvisor nos últimos 15 s. O filtro evita que o Prometheus mantenha o último valor por até 5 min após o container terminar; pode haver uma pequena cauda durante o BENCH_LINGER.",
+      "description": "Memória dos containers vistos pelo cAdvisor nos últimos 15 s. O filtro evita que o Prometheus mantenha o último valor por até 5 min após o container terminar; pode haver uma pequena cauda durante o BENCH_LINGER. Cada série é um par algoritmo · nível; requer o label de container 'effort' (rode com -l effort=<N>).",
       "type": "timeseries",
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
       "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -57,8 +80,8 @@
       },
       "targets": [
         {
-          "expr": "sum by (container_label_algorithm) (container_memory_usage_bytes{container_label_algorithm=~\"$algorithm\"} and on (id, instance) (container_last_seen > time() - 15))",
-          "legendFormat": "{{container_label_algorithm}}",
+          "expr": "label_join(sum by (container_label_algorithm, container_label_effort) (container_memory_usage_bytes{container_label_algorithm=~\"$algorithm\", container_label_effort=~\"$effort\"} and on (id, instance) (container_last_seen > time() - 15)), \"algo_effort\", \" · nível \", \"container_label_algorithm\", \"container_label_effort\")",
+          "legendFormat": "{{algo_effort}}",
           "refId": "A"
         }
       ]
@@ -66,7 +89,7 @@
     {
       "id": 3,
       "title": "CPU por operação (CPU-s por ciclo)",
-      "description": "CPU total consumida pela execução dividida pelo volume (número de ciclos). Normaliza pelo trabalho, removendo o viés de duração do painel de ocupação — assim a comparação entre algoritmos fica justa. Requer o label de container 'volume' (rode com `-l volume=<N>`); execuções sem esse label são ignoradas.",
+      "description": "CPU total consumida pela execução dividida pelo volume (número de ciclos). Normaliza pelo trabalho, removendo o viés de duração do painel de ocupação — assim a comparação entre algoritmos fica justa. Cada linha é um par algoritmo · nível; requer os labels de container 'volume' e 'effort' (rode com `-l volume=<N> -l effort=<nível>`); execuções sem esses labels são ignoradas.",
       "type": "table",
       "gridPos": { "h": 8, "w": 24, "x": 0, "y": 8 },
       "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -120,9 +143,13 @@
         {
           "id": "organize",
           "options": {
-            "excludeByName": { "Time": true },
+            "excludeByName": {
+              "Time": true,
+              "container_label_algorithm": true,
+              "container_label_effort": true
+            },
             "renameByName": {
-              "container_label_algorithm": "Algoritmo",
+              "algo_effort": "Algoritmo / nível",
               "container_label_volume": "Volume",
               "Value": "CPU total (s)"
             }
@@ -133,7 +160,7 @@
         {
           "refId": "A",
           "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "sum by (container_label_algorithm, container_label_volume) (last_over_time(container_cpu_usage_seconds_total{container_label_algorithm=~\"$algorithm\", container_label_volume=~\".+\"}[$__range]))",
+          "expr": "label_join(sum by (container_label_algorithm, container_label_effort, container_label_volume) (last_over_time(container_cpu_usage_seconds_total{container_label_algorithm=~\"$algorithm\", container_label_effort=~\"$effort\", container_label_volume=~\".+\"}[$__range])), \"algo_effort\", \" · nível \", \"container_label_algorithm\", \"container_label_effort\")",
           "legendFormat": "{{container_label_algorithm}}",
           "instant": true,
           "range": false,
@@ -144,7 +171,7 @@
     {
       "id": 4,
       "title": "Tempo medio por etapa",
-      "description": "Tempo de parede medio por etapa e por ciclo (soma das chamadas dividida pelo numero de ciclos) na ultima execucao enviada ao Pushgateway. Uma linha por algoritmo e uma coluna por etapa; celulas vazias sao etapas que nao se aplicam ao algoritmo. Requer a imagem de profiling (docker compose build app-profile).",
+      "description": "Tempo de parede medio por etapa e por ciclo (soma das chamadas dividida pelo numero de ciclos) na ultima execucao enviada ao Pushgateway. Uma linha por algoritmo e nivel e uma coluna por etapa; celulas vazias sao etapas que nao se aplicam. Os algoritmos e niveis exibidos sao os selecionados nas variaveis 'Algoritmo' e 'Nivel de seguranca'. As execucoes sao filtradas pelo periodo selecionado (via push_time_seconds). Requer a imagem de profiling (docker compose build app-profile).",
       "type": "table",
       "gridPos": { "h": 10, "w": 24, "x": 0, "y": 16 },
       "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -159,7 +186,7 @@
           "id": "groupingToMatrix",
           "options": {
             "columnField": "step",
-            "rowField": "algorithm",
+            "rowField": "algo_effort",
             "valueField": "Value"
           }
         },
@@ -167,7 +194,7 @@
           "id": "organize",
           "options": {
             "excludeByName": { "Time": true },
-            "renameByName": { "algorithm\\step": "Algoritmo" }
+            "renameByName": { "algo_effort\\step": "Algoritmo / nível" }
           }
         }
       ],
@@ -175,7 +202,7 @@
         {
           "refId": "A",
           "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "sum by (algorithm, step) (benchmark_step_seconds_sum) / sum by (algorithm, step) (benchmark_step_seconds_count)",
+          "expr": "(label_join(sum by (algorithm, effort, step) (benchmark_step_seconds_sum{algorithm=~\"$algorithm\", effort=~\"$effort\"}), \"algo_effort\", \" · nível \", \"algorithm\", \"effort\") / label_join(sum by (algorithm, effort, step) (benchmark_step_seconds_count{algorithm=~\"$algorithm\", effort=~\"$effort\"}), \"algo_effort\", \" · nível \", \"algorithm\", \"effort\")) and on (algorithm, effort) (push_time_seconds >= $__from/1000 and push_time_seconds <= $__to/1000)",
           "instant": true,
           "range": false,
           "format": "table"
@@ -185,7 +212,7 @@
     {
       "id": 5,
       "title": "Tempo acumulado por etapa",
-      "description": "Tempo de parede total gasto em cada etapa durante a ultima execucao enviada ao Pushgateway. Uma linha por algoritmo e uma coluna por etapa; a media por ciclo esta no painel acima.",
+      "description": "Tempo de parede total gasto em cada etapa durante a ultima execucao enviada ao Pushgateway. Uma linha por algoritmo e nivel e uma coluna por etapa; a media por ciclo esta no painel acima. Os algoritmos e niveis exibidos sao os selecionados nas variaveis 'Algoritmo' e 'Nivel de seguranca'. As execucoes sao filtradas pelo periodo selecionado (via push_time_seconds).",
       "type": "table",
       "gridPos": { "h": 10, "w": 24, "x": 0, "y": 26 },
       "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -200,7 +227,7 @@
           "id": "groupingToMatrix",
           "options": {
             "columnField": "step",
-            "rowField": "algorithm",
+            "rowField": "algo_effort",
             "valueField": "Value"
           }
         },
@@ -208,7 +235,7 @@
           "id": "organize",
           "options": {
             "excludeByName": { "Time": true },
-            "renameByName": { "algorithm\\step": "Algoritmo" }
+            "renameByName": { "algo_effort\\step": "Algoritmo / nível" }
           }
         }
       ],
@@ -216,7 +243,7 @@
         {
           "refId": "A",
           "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "sum by (algorithm, step) (benchmark_step_seconds_sum)",
+          "expr": "label_join(sum by (algorithm, effort, step) (benchmark_step_seconds_sum{algorithm=~\"$algorithm\", effort=~\"$effort\"}), \"algo_effort\", \" · nível \", \"algorithm\", \"effort\") and on (algorithm, effort) (push_time_seconds >= $__from/1000 and push_time_seconds <= $__to/1000)",
           "instant": true,
           "range": false,
           "format": "table"

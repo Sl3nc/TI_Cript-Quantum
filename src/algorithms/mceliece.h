@@ -3,6 +3,6 @@
 
 #include "../workload.h"
 
-workload_status run_mceliece(long volume);
+workload_status run_mceliece(long volume, int effort);
 
 #endif

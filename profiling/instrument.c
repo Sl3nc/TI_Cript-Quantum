@@ -284,6 +284,11 @@ __attribute__((destructor)) static void emit_metrics(void) {
         algorithm = "KEM";
     }
 
+    const char *effort = getenv("BENCH_EFFORT");
+    if (effort == NULL || effort[0] == '\0') {
+        effort = "5";
+    }
+
     const char *path = getenv("BENCH_METRICS_FILE");
     FILE *out = (path != NULL && path[0] != '\0') ? fopen(path, "w") : stdout;
     if (out == NULL) {
@@ -303,12 +308,12 @@ __attribute__((destructor)) static void emit_metrics(void) {
 
         uint64_t count = cycles > 0 ? cycles : stats->calls;
 
-        fprintf(out, "benchmark_step_seconds_sum{algorithm=\"%s\",step=\"%s\"} %.9f\n", algorithm,
-                stats->name, (double)stats->sum_ns / 1e9);
-        fprintf(out, "benchmark_step_seconds_count{algorithm=\"%s\",step=\"%s\"} %llu\n", algorithm,
-                stats->name, (unsigned long long)count);
-        fprintf(out, "benchmark_step_calls{algorithm=\"%s\",step=\"%s\"} %llu\n", algorithm, stats->name,
-                (unsigned long long)stats->calls);
+        fprintf(out, "benchmark_step_seconds_sum{algorithm=\"%s\",effort=\"%s\",step=\"%s\"} %.9f\n",
+                algorithm, effort, stats->name, (double)stats->sum_ns / 1e9);
+        fprintf(out, "benchmark_step_seconds_count{algorithm=\"%s\",effort=\"%s\",step=\"%s\"} %llu\n",
+                algorithm, effort, stats->name, (unsigned long long)count);
+        fprintf(out, "benchmark_step_calls{algorithm=\"%s\",effort=\"%s\",step=\"%s\"} %llu\n",
+                algorithm, effort, stats->name, (unsigned long long)stats->calls);
     }
 
     if (out != stdout) {

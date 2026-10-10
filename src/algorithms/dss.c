@@ -7,12 +7,30 @@
 static const uint8_t MESSAGE[] = "Hello World";
 static const size_t MESSAGE_LEN = sizeof(MESSAGE) - 1;
 
-workload_status run_dss(long volume) {
+static const char *dss_algorithm(int effort) {
+    switch (effort) {
+    case 1:
+        return OQS_SIG_alg_ml_dsa_44;
+    case 3:
+        return OQS_SIG_alg_ml_dsa_65;
+    case 5:
+        return OQS_SIG_alg_ml_dsa_87;
+    default:
+        return NULL;
+    }
+}
+
+workload_status run_dss(long volume, int effort) {
     if (volume <= 0) {
         return WORKLOAD_INVALID_VOLUME;
     }
 
-    OQS_SIG *sig = OQS_SIG_new(OQS_SIG_alg_ml_dsa_87);
+    const char *name = dss_algorithm(effort);
+    if (name == NULL) {
+        return WORKLOAD_INVALID_EFFORT;
+    }
+
+    OQS_SIG *sig = OQS_SIG_new(name);
     if (sig == NULL) {
         return WORKLOAD_ERROR;
     }
