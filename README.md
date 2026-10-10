@@ -146,15 +146,18 @@ As etapas cobertas, por algoritmo:
 
 Observações:
 
-- O divisor é o número de ciclos (`volume`), então o valor é o tempo de cada etapa **por ciclo**.
-  Etapas que ocorrem mais de uma vez por ciclo (keygen de ECIES/ECDH, derive, kdf, AEAD) somam
-  todas as ocorrências. A métrica `benchmark_step_calls` traz o número de chamadas, permitindo a
-  média por chamada, se desejado.
+- O divisor é o número de ciclos (`volume`, definido por `-v`), então o valor é o tempo de cada etapa
+  **por ciclo**. Etapas que ocorrem mais de uma vez por ciclo (keygen de ECIES/ECDH, derive, kdf, AEAD)
+  somam todas as ocorrências. **`-v` é obrigatório para essa métrica fazer sentido:** sem ele o
+  entrypoint não define `BENCH_VOLUME`, o divisor cai para o número de chamadas e os valores ficam
+  inconsistentes entre etapas (por chamada nas etapas repetidas, por ciclo nas demais). A métrica
+  `benchmark_step_calls` traz o número de chamadas, permitindo a média por chamada, se desejado.
 - As funções auxiliares `static` dos módulos (KDF e AEAD) não são envolvíveis pelo linker; suas
   etapas são compostas pelas chamadas EVP que usam (`EVP_Digest` e as três chamadas de cada lado
   do AES-GCM).
-- O wrap só reescreve chamadas diretas do programa: não mede o trabalho interno das bibliotecas,
-  apenas o que o runner executa.
+- O wrap atribui à etapa o tempo da chamada envolvida, incluindo o trabalho que ela executa na
+  biblioteca (é assim que as operações do liboqs/libcrypto são medidas). O que ele não faz é
+  detalhar as chamadas aninhadas dentro da biblioteca, nem envolver as funções `static` dos módulos.
 - Os painéis **"Tempo medio por etapa"** e **"Tempo acumulado por etapa"** são filtrados pelas
   variáveis **"Algoritmo"** (`algorithm`) e **"Nível de segurança"** (`effort`), ambas multisseleção.
   Cada combinação selecionada vira uma linha própria (`algoritmo · nível N`), graças ao `label_join`.

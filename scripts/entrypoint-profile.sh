@@ -52,10 +52,12 @@ if [ -n "${PUSHGATEWAY_URL:-}" ] && [ -s "$metrics_file" ]; then
         push_path="${push_path}/effort/${effort}"
     fi
 
-    curl -fsS \
+    if ! curl -fsS \
         -H 'Content-Type: text/plain; version=0.0.4' \
         --data-binary "@$metrics_file" \
-        "${PUSHGATEWAY_URL}${push_path}" || true
+        "${PUSHGATEWAY_URL}${push_path}"; then
+        echo "[ERROR] FAILED error=pushgateway push to ${PUSHGATEWAY_URL}${push_path}" >&2
+    fi
 fi
 
 sleep "${BENCH_LINGER:-7}" 2>/dev/null || true
