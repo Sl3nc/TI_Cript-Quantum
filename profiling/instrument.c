@@ -12,9 +12,16 @@
  *   KEM       keygen -> encaps -> decaps
  *   DSS       keygen -> sign -> verify
  *   MCELIECE  keygen -> encaps -> kdf -> encrypt -> decaps -> kdf -> decrypt
- *   ECIES     keygen -> derive -> kdf -> encrypt -> derive -> kdf -> decrypt
+ *   ECIES     keygen -> encaps -> kdf -> encrypt -> decaps -> kdf -> decrypt
  *   ECDSA     keygen -> sign -> verify
- *   ECDH      keygen -> derive (2 lados)
+ *   ECDH      keygen -> encaps -> decaps
+ *
+ * Em ECDH e ECIES, os dois lados da troca chamam EVP_PKEY_derive duas vezes por
+ * ciclo (sempre remetente -> destinatário). O wrapper alterna a atribuição: a 1ª
+ * chamada vira "encaps" e a 2ª vira "decaps", alinhando o vocabulário de etapas
+ * com KEM/MCELIECE. Isso depende de haver exatamente duas chamadas por ciclo
+ * nesses workloads. Note ainda que o ECDH executa keygen duas vezes por ciclo
+ * (uma chave por lado), enquanto o KEM executa keygen apenas uma vez.
  *
  * As funções estáticas dos módulos (kdf e AEAD) não são envolvíveis pelo linker,
  * então as etapas "kdf", "encrypt" e "decrypt" são compostas pelas chamadas EVP
@@ -76,7 +83,6 @@ enum step_id {
     STEP_VERIFY,
     STEP_ENCAPS,
     STEP_DECAPS,
-    STEP_DERIVE,
     STEP_KDF,
     STEP_ENCRYPT,
     STEP_DECRYPT,
@@ -95,7 +101,6 @@ static struct step_stats steps[STEP_COUNT] = {
     [STEP_VERIFY] = {"verify", 0, 0},
     [STEP_ENCAPS] = {"encaps", 0, 0},
     [STEP_DECAPS] = {"decaps", 0, 0},
-    [STEP_DERIVE] = {"derive", 0, 0},
     [STEP_KDF] = {"kdf", 0, 0},
     [STEP_ENCRYPT] = {"encrypt", 0, 0},
     [STEP_DECRYPT] = {"decrypt", 0, 0},
@@ -172,10 +177,17 @@ int __wrap_EVP_PKEY_generate(EVP_PKEY_CTX *ctx, EVP_PKEY **ppkey) {
     return ret;
 }
 
+/* Estado da alternância encaps/decaps das chamadas de EVP_PKEY_derive. */
+static int derive_side = 0;
+
 int __wrap_EVP_PKEY_derive(EVP_PKEY_CTX *ctx, unsigned char *key, size_t *keylen) {
     uint64_t start_ns = now_ns();
     int ret = __real_EVP_PKEY_derive(ctx, key, keylen);
-    record(STEP_DERIVE, start_ns);
+    /* ECDH e ECIES chamam EVP_PKEY_derive duas vezes por ciclo, na ordem
+     * remetente -> destinatário. Alterna a etapa para alinhar com KEM/MCELIECE:
+     * 1ª chamada = encaps, 2ª = decaps. */
+    record(derive_side ? STEP_DECAPS : STEP_ENCAPS, start_ns);
+    derive_side ^= 1;
     return ret;
 }
 

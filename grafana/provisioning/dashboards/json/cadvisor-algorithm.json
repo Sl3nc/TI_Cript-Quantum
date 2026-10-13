@@ -51,7 +51,7 @@
     {
       "id": 1,
       "title": "CPU (ocupação de 1 núcleo)",
-      "description": "Taxa de uso de CPU do container (média móvel de 1 min, em fração de 1 núcleo). Mede OCUPAÇÃO (duty cycle), não custo por operação: execuções curtas ficam diluídas na janela e aparecem com % menor, mesmo saturando o núcleo enquanto rodam. Para comparar algoritmos, use o painel 'CPU por operação'. Cada série é um par algoritmo · nível; requer o label de container 'effort' (rode com -l effort=<N>).",
+      "description": "Taxa de uso de CPU do container (média móvel de 1 min, em fração de 1 núcleo). Mede ocupação, não custo por operação — para custo, use o painel 'CPU por operação'. Requer o label 'effort' (-l effort=<N>).",
       "type": "timeseries",
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
       "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -70,7 +70,7 @@
     {
       "id": 2,
       "title": "Memoria (uso)",
-      "description": "Memória dos containers vistos pelo cAdvisor nos últimos 15 s. O filtro evita que o Prometheus mantenha o último valor por até 5 min após o container terminar; pode haver uma pequena cauda durante o BENCH_LINGER. Cada série é um par algoritmo · nível; requer o label de container 'effort' (rode com -l effort=<N>).",
+      "description": "Memória do container vista pelo cAdvisor nos últimos 15 s. Requer o label 'effort' (-l effort=<N>).",
       "type": "timeseries",
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
       "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -89,7 +89,7 @@
     {
       "id": 3,
       "title": "CPU por operação (CPU-s por ciclo)",
-      "description": "CPU total consumida pela execução dividida pelo volume (número de ciclos). Normaliza pelo trabalho, removendo o viés de duração do painel de ocupação — assim a comparação entre algoritmos fica justa. Cada linha é um par algoritmo · nível; requer os labels de container 'volume' e 'effort' (rode com `-l volume=<N> -l effort=<nível>`); execuções sem esses labels são ignoradas.",
+      "description": "CPU total da execução dividida pelo volume (ciclos). Requer os labels 'volume' e 'effort' (-l volume=<N> -l effort=<N>).",
       "type": "table",
       "gridPos": { "h": 8, "w": 24, "x": 0, "y": 8 },
       "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -171,7 +171,7 @@
     {
       "id": 4,
       "title": "Tempo medio por etapa",
-      "description": "Tempo de parede medio por etapa e por ciclo (soma das chamadas dividida pelo numero de ciclos) na ultima execucao enviada ao Pushgateway. Uma linha por algoritmo e nivel e uma coluna por etapa; celulas vazias sao etapas que nao se aplicam. Os algoritmos e niveis exibidos sao os selecionados nas variaveis 'Algoritmo' e 'Nivel de seguranca'. As execucoes sao filtradas pelo periodo selecionado (via push_time_seconds). Requer a imagem de profiling (docker compose build app-profile).",
+      "description": "Tempo medio por etapa na ultima execucao enviada ao Pushgateway. 'keygen' e exibido por chamada; as demais etapas, por ciclo. Requer a imagem de profiling.",
       "type": "table",
       "gridPos": { "h": 10, "w": 24, "x": 0, "y": 16 },
       "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -202,7 +202,7 @@
         {
           "refId": "A",
           "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "(label_join(sum by (algorithm, effort, step) (benchmark_step_seconds_sum{algorithm=~\"$algorithm\", effort=~\"$effort\"}), \"algo_effort\", \" · nível \", \"algorithm\", \"effort\") / label_join(sum by (algorithm, effort, step) (benchmark_step_seconds_count{algorithm=~\"$algorithm\", effort=~\"$effort\"}), \"algo_effort\", \" · nível \", \"algorithm\", \"effort\")) and on (algorithm, effort) (push_time_seconds >= $__from/1000 and push_time_seconds <= $__to/1000)",
+          "expr": "label_join((sum by (algorithm, effort, step) (benchmark_step_seconds_sum{algorithm=~\"$algorithm\", effort=~\"$effort\"}) / ((sum by (algorithm, effort, step) (benchmark_step_seconds_count{algorithm=~\"$algorithm\", effort=~\"$effort\"}) unless on (algorithm, effort, step) sum by (algorithm, effort, step) (benchmark_step_seconds_count{step=\"keygen\", algorithm=~\"$algorithm\", effort=~\"$effort\"})) or sum by (algorithm, effort, step) (benchmark_step_calls{step=\"keygen\", algorithm=~\"$algorithm\", effort=~\"$effort\"}))), \"algo_effort\", \" · nível \", \"algorithm\", \"effort\") and on (algorithm, effort) (push_time_seconds >= $__from/1000 and push_time_seconds <= $__to/1000)",
           "instant": true,
           "range": false,
           "format": "table"
@@ -212,7 +212,7 @@
     {
       "id": 5,
       "title": "Tempo acumulado por etapa",
-      "description": "Tempo de parede total gasto em cada etapa durante a ultima execucao enviada ao Pushgateway. Uma linha por algoritmo e nivel e uma coluna por etapa; a media por ciclo esta no painel acima. Os algoritmos e niveis exibidos sao os selecionados nas variaveis 'Algoritmo' e 'Nivel de seguranca'. As execucoes sao filtradas pelo periodo selecionado (via push_time_seconds).",
+      "description": "Tempo total por etapa na ultima execucao enviada ao Pushgateway. A media por etapa esta no painel acima.",
       "type": "table",
       "gridPos": { "h": 10, "w": 24, "x": 0, "y": 26 },
       "datasource": { "type": "prometheus", "uid": "prometheus" },

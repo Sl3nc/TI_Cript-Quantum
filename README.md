@@ -21,7 +21,7 @@ parameter set equivalente à Categoria NIST.
 | `MCELIECE` | liboqs     | keygen → encaps+AES-GCM encrypt → decaps+AES-GCM decrypt | Classic-McEliece-348864f / 460896f / 8192128f |
 | `ECIES`    | libcrypto  | keygen → ECDH+AES-GCM encrypt → ECDH+AES-GCM decrypt     | P-256 / P-384 / P-521                         |
 | `ECDSA`    | libcrypto  | keygen → sign (SHA-256/384/512) → verify                 | P-256 / P-384 / P-521                         |
-| `ECDH`     | libcrypto  | key exchange (2 lados)                                   | P-256 / P-384 / P-521                         |
+| `ECDH`     | libcrypto  | keygen (2×, um por lado) → troca (2 lados)               | P-256 / P-384 / P-521                         |
 
 > O `ML-DSA-44` é a menor opção da liboqs, mas é oficialmente Categoria NIST 2 (não existe assinatura pós-quântica padronizada na Categoria 1).
 
@@ -140,18 +140,29 @@ As etapas cobertas, por algoritmo:
 | `KEM`      | keygen, encaps, decaps                             |
 | `DSS`      | keygen, sign, verify                               |
 | `MCELIECE` | keygen, encaps, kdf, encrypt, decaps, kdf, decrypt |
-| `ECIES`    | keygen, derive, kdf, encrypt, derive, kdf, decrypt |
+| `ECIES`    | keygen, encaps, kdf, encrypt, decaps, kdf, decrypt |
 | `ECDSA`    | keygen, sign, verify                               |
-| `ECDH`     | keygen, derive (dois lados)                        |
+| `ECDH`     | keygen, encaps, decaps                             |
 
 Observações:
 
-- O divisor é o número de ciclos (`volume`, definido por `-v`), então o valor é o tempo de cada etapa
-  **por ciclo**. Etapas que ocorrem mais de uma vez por ciclo (keygen de ECIES/ECDH, derive, kdf, AEAD)
-  somam todas as ocorrências. **`-v` é obrigatório para essa métrica fazer sentido:** sem ele o
-  entrypoint não define `BENCH_VOLUME`, o divisor cai para o número de chamadas e os valores ficam
-  inconsistentes entre etapas (por chamada nas etapas repetidas, por ciclo nas demais). A métrica
-  `benchmark_step_calls` traz o número de chamadas, permitindo a média por chamada, se desejado.
+- No painel **"Tempo medio por etapa"** o divisor padrão é o número de ciclos (`volume`, definido por
+  `-v`), então as etapas aparecem **por ciclo**; a exceção é `keygen`, exibido **por chamada** (divisor
+  `benchmark_step_calls`). Etapas que ocorrem mais de uma vez por ciclo (kdf de ECIES/MCELIECE) somam
+  todas as ocorrências. Sem `-v` todas as etapas caem para **por chamada** (o divisor vira o número de
+  chamadas), o que continua coerente, mas as colunas deixam de representar o custo por ciclo — por isso
+  recomenda-se sempre passar `-v`. A métrica bruta `benchmark_step_calls` traz o número de chamadas.
+- **`keygen` no ECDH (e no ECIES) ocorre duas vezes por ciclo.** O ECDH gera uma chave por lado da troca
+  e o ECIES gera a chave do destinatário mais a efêmera, enquanto o KEM gera apenas uma por ciclo. Como o
+  divisor de `keygen` no painel é o número de chamadas, a linha do ECDH mostra o custo de **uma** geração
+  de chave, comparável direto ao KEM; a soma bruta (`benchmark_step_seconds_sum`), porém, continua
+  acumulando as duas gerações do ciclo.
+- Em **ECDH e ECIES** os dois lados da troca chamam `EVP_PKEY_derive` **duas vezes por ciclo** (sempre
+  remetente → destinatário). O wrapper alterna a etapa: a 1ª chamada vira `encaps` e a 2ª vira `decaps`,
+  de modo que esses algoritmos exponham o mesmo vocabulário de etapas do KEM/MCELIECE. Consequência: no
+  ECDH as duas etapas medem a **mesma** operação (a troca é simétrica), então `encaps` e `decaps` saem
+  praticamente iguais; a assimetria real entre encapsular e desencapsular só existe no KEM. Esse
+  mapeamento pressupõe exatamente duas chamadas de `EVP_PKEY_derive` por ciclo nesses workloads.
 - As funções auxiliares `static` dos módulos (KDF e AEAD) não são envolvíveis pelo linker; suas
   etapas são compostas pelas chamadas EVP que usam (`EVP_Digest` e as três chamadas de cada lado
   do AES-GCM).
