@@ -13,6 +13,19 @@
 static const uint8_t MESSAGE[] = "Hello World!";
 static const size_t MESSAGE_LEN = sizeof(MESSAGE) - 1;
 
+static const char *mceliece_algorithm(int effort) {
+    switch (effort) {
+    case 1:
+        return OQS_KEM_alg_classic_mceliece_348864f;
+    case 3:
+        return OQS_KEM_alg_classic_mceliece_460896f;
+    case 5:
+        return OQS_KEM_alg_classic_mceliece_8192128f;
+    default:
+        return NULL;
+    }
+}
+
 static int derive_key(const uint8_t *shared_secret, size_t shared_secret_len,
                       unsigned char *key) {
     unsigned int digest_len = 0;
@@ -50,12 +63,17 @@ static int aead_decrypt(EVP_CIPHER_CTX *ctx, const unsigned char *key, const uns
     return memcmp(plaintext, MESSAGE, MESSAGE_LEN) == 0;
 }
 
-workload_status run_mceliece(long volume) {
+workload_status run_mceliece(long volume, int effort) {
     if (volume <= 0) {
         return WORKLOAD_INVALID_VOLUME;
     }
 
-    OQS_KEM *kem = OQS_KEM_new(OQS_KEM_alg_classic_mceliece_8192128f);
+    const char *name = mceliece_algorithm(effort);
+    if (name == NULL) {
+        return WORKLOAD_INVALID_EFFORT;
+    }
+
+    OQS_KEM *kem = OQS_KEM_new(name);
     if (kem == NULL) {
         return WORKLOAD_ERROR;
     }

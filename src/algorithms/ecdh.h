@@ -3,6 +3,6 @@
 
 #include "../workload.h"
 
-workload_status run_ecdh(long volume);
+workload_status run_ecdh(long volume, int effort);
 
 #endif
