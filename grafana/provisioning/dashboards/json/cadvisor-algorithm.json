@@ -99,8 +99,8 @@
           {
             "matcher": { "id": "byName", "options": "CPU total (s)" },
             "properties": [
-              { "id": "unit", "value": "s" },
-              { "id": "decimals", "value": 2 }
+              { "id": "unit", "value": "dthms" },
+              { "id": "decimals", "value": 0 }
             ]
           },
           {
