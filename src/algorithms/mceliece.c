@@ -99,11 +99,12 @@ workload_status run_mceliece(long volume, int effort) {
         shared_secret_e == NULL || shared_secret_d == NULL || enc_ctx == NULL ||
         dec_ctx == NULL) {
         status = WORKLOAD_ERROR;
+    } else if (OQS_KEM_keypair(kem, public_key, secret_key) != OQS_SUCCESS) {
+        status = WORKLOAD_ERROR;
     }
 
     for (long i = 0; status == WORKLOAD_OK && i < volume; i++) {
-        if (OQS_KEM_keypair(kem, public_key, secret_key) != OQS_SUCCESS ||
-            OQS_KEM_encaps(kem, kem_ciphertext, shared_secret_e, public_key) != OQS_SUCCESS ||
+        if (OQS_KEM_encaps(kem, kem_ciphertext, shared_secret_e, public_key) != OQS_SUCCESS ||
             !derive_key(shared_secret_e, kem->length_shared_secret, key_e) ||
             !aead_encrypt(enc_ctx, key_e, IV, aead_ciphertext, tag) ||
             OQS_KEM_decaps(kem, shared_secret_d, kem_ciphertext, secret_key) != OQS_SUCCESS ||

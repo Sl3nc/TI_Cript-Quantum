@@ -20,13 +20,13 @@ ctest --test-dir build --output-on-failure
 ctest --test-dir build -R test_kem --output-on-failure
 ```
 
-Requires OpenSSL >= 3.0 dev headers and an installed liboqs. If liboqs is not available locally, build and run through Docker instead — `docker compose build app` compiles liboqs from source.
+Requires OpenSSL >= 3.0 dev headers and an installed liboqs. If liboqs is not available locally, build and run through Docker instead — `docker build -t ti-cript-quantum:latest .` compiles liboqs from source. `docker-compose.yml` only holds the observability stack (cAdvisor, Prometheus, Pushgateway, Grafana); the benchmark is not a compose service.
 
 **MCELIECE does not work locally.** The locally installed liboqs has Classic-McEliece disabled, so
 `test_mceliece` fails locally and `./build/benchmark -a MCELIECE` returns `EXIT_FAILURE`. This is
 an environment limitation, not a code defect — run MCELIECE through Docker, where liboqs is built
-from source with the algorithm enabled (`docker compose run --rm app -a MCELIECE -e 5 -v 20`; keep the
-volume small, keygen costs ~0.2 s per cycle).
+from source with the algorithm enabled (`docker run --rm ti-cript-quantum:latest -a MCELIECE -e 5 -v 20`; keep the
+volume small, keygen costs ~0.2 s, paid once per run).
 
 ## Architecture
 

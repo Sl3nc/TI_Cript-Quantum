@@ -14,14 +14,18 @@ código de saída (`0` = sucesso, `1` = falha).
 Todos os algoritmos aceitam o nível de segurança `--effort/-e` (`1`, `3` ou `5`), que seleciona o
 parameter set equivalente à Categoria NIST.
 
-| Nome (CLI) | Biblioteca | Operação por ciclo                                       | Nível 1 / 3 / 5                               |
-| ---------- | ---------- | -------------------------------------------------------- | --------------------------------------------- |
-| `KEM`      | liboqs     | keygen → encaps → decaps                                 | ML-KEM-512 / 768 / 1024                       |
-| `DSS`      | liboqs     | keygen → sign → verify                                   | ML-DSA-44 / 65 / 87                           |
-| `MCELIECE` | liboqs     | keygen → encaps+AES-GCM encrypt → decaps+AES-GCM decrypt | Classic-McEliece-348864f / 460896f / 8192128f |
-| `ECIES`    | libcrypto  | keygen → ECDH+AES-GCM encrypt → ECDH+AES-GCM decrypt     | P-256 / P-384 / P-521                         |
-| `ECDSA`    | libcrypto  | keygen → sign (SHA-256/384/512) → verify                 | P-256 / P-384 / P-521                         |
-| `ECDH`     | libcrypto  | keygen (2×, um por lado) → troca (2 lados)               | P-256 / P-384 / P-521                         |
+| Nome (CLI) | Biblioteca | Operação por ciclo                              | Nível 1 / 3 / 5                               |
+| ---------- | ---------- | ----------------------------------------------- | --------------------------------------------- |
+| `KEM`      | liboqs     | keygen → encaps → decaps                        | ML-KEM-512 / 768 / 1024                       |
+| `DSS`      | liboqs     | keygen → sign → verify                          | ML-DSA-44 / 65 / 87                           |
+| `MCELIECE` | liboqs     | encaps+AES-GCM encrypt → decaps+AES-GCM decrypt | Classic-McEliece-348864f / 460896f / 8192128f |
+| `ECIES`    | libcrypto  | ECDH+AES-GCM encrypt → ECDH+AES-GCM decrypt     | P-256 / P-384 / P-521                         |
+| `ECDSA`    | libcrypto  | keygen → sign (SHA-256/384/512) → verify        | P-256 / P-384 / P-521                         |
+| `ECDH`     | libcrypto  | keygen (2×, um por lado) → troca (2 lados)      | P-256 / P-384 / P-521                         |
+
+> No `MCELIECE` e no `ECIES` o par de chaves do destinatário é gerado **uma única vez** por execução,
+> fora do laço, e reutilizado em todos os ciclos (cenário real de chave de longa duração). No `ECIES`
+> a chave efêmera do remetente continua sendo gerada a cada cifração, pois faz parte do esquema.
 
 > O `ML-DSA-44` é a menor opção da liboqs, mas é oficialmente Categoria NIST 2 (não existe assinatura pós-quântica padronizada na Categoria 1).
 
@@ -33,7 +37,7 @@ par rodam no mesmo nível (Categoria NIST 1, 3 ou 5):
 
 | Par              | Clássico | Pós-Quântico | Operação por ciclo (os dois lados)                     |
 | ---------------- | -------- | ------------ | ------------------------------------------------------ |
-| Cifração (ECIES) | `ECIES`  | `MCELIECE`   | keygen → encrypt → decrypt                             |
+| Cifração (ECIES) | `ECIES`  | `MCELIECE`   | encrypt → decrypt (chave do destinatário pré-gerada)   |
 | Assinatura (DSA) | `ECDSA`  | `DSS`        | keygen → sign → verify                                 |
 | Troca de chave   | `ECDH`   | `KEM`        | keygen → troca/encapsulamento → verificação (`memcmp`) |
 
@@ -76,12 +80,13 @@ A imagem compila o liboqs estaticamente a partir do fonte (tag fixada em `LIBOQS
 entrega o binário e um pequeno wrapper de entrypoint (`scripts/entrypoint.sh`) no estágio final.
 
 ```bash
-docker compose build app
-docker compose run --rm app --algorithm KEM --effort 5 --volume 1000
+docker build -t ti-cript-quantum:latest .
+docker run --rm ti-cript-quantum:latest --algorithm KEM --effort 5 --volume 1000
 ```
 
-`docker-compose.yml` também sobe cAdvisor, Prometheus e Grafana para a coleta e visualização
-externas. Para que execuções curtas não sejam subnotificadas, a imagem mantém o container vivo
+`docker-compose.yml` sobe apenas a infraestrutura de coleta e visualização (cAdvisor,
+Prometheus, Pushgateway e Grafana); o benchmark é uma imagem avulsa, executada com `docker run`.
+Para que execuções curtas não sejam subnotificadas, a imagem mantém o container vivo
 por alguns segundos após a carga (`BENCH_LINGER`, default 7 s) e o `scrape_interval` do cAdvisor
 é de 5 s — assim a leitura final do contador cumulativo é sempre coletada, mesmo em runs de
 milissegundos. Ajuste com `-e BENCH_LINGER=<segundos>` (use `0` para desativar; deve ser
@@ -93,7 +98,7 @@ Para identificar o algoritmo e o nível nas métricas do cAdvisor (labels
 também usa o label `volume` para normalizar a CPU pelo número de ciclos executados:
 
 ```bash
-docker compose run --rm -l algorithm=KEM -l effort=5 -l volume=4000 app -a KEM -e 5 -v 4000
+docker run --rm -l algorithm=KEM -l effort=5 -l volume=4000 ti-cript-quantum:latest -a KEM -e 5 -v 4000
 ```
 
 O Grafana fica em `http://localhost:3000` (login definido em `.env`, copie de `.env.example`)
@@ -114,10 +119,18 @@ permanece sem qualquer medição — a lógica fica em `profiling/instrument.c`,
 `-DBENCH_PROFILE=ON`.
 
 ```bash
-docker compose build app-profile
-docker compose up -d pushgateway prometheus grafana cadvisor
-docker compose run --rm -l volume=1000 -l algorithm=DSS -l effort=5 app-profile -a DSS -e 5 -v 1000
+docker build --target profiling -t ti-cript-quantum-profile:latest .
+docker compose up -d            # infra de coleta: pushgateway, prometheus, grafana, cadvisor
+docker run --rm -l volume=1000 -l algorithm=DSS -l effort=5 \
+  --network ti-cript-quantum_default \
+  -e PUSHGATEWAY_URL=http://pushgateway:9091/metrics/job/benchmark \
+  ti-cript-quantum-profile:latest -a DSS -e 5 -v 1000
 ```
+
+O `--network` é necessário porque a imagem de profiling envia as métricas por DNS interno do
+Compose (`pushgateway`); o nome da rede é `<projeto>_default`, onde o projeto vem do nome do
+diretório (`docker network ls` confirma o nome). Sem `-e PUSHGATEWAY_URL` a execução roda igual,
+mas não publica nada no Prometheus.
 
 O entrypoint de profiling descobre o algoritmo, o esforço e o volume a partir dos próprios
 argumentos (`-a`/`-e`/`-v`), envia a soma e a contagem por etapa ao serviço `pushgateway`, que o
@@ -152,8 +165,7 @@ Observações:
   todas as ocorrências. Sem `-v` todas as etapas caem para **por chamada** (o divisor vira o número de
   chamadas), o que continua coerente, mas as colunas deixam de representar o custo por ciclo — por isso
   recomenda-se sempre passar `-v`. A métrica bruta `benchmark_step_calls` traz o número de chamadas.
-- **`keygen` no ECDH (e no ECIES) ocorre duas vezes por ciclo.** O ECDH gera uma chave por lado da troca
-  e o ECIES gera a chave do destinatário mais a efêmera, enquanto o KEM gera apenas uma por ciclo. Como o
+- **`keygen` no ECDH ocorre duas vezes por ciclo.** O ECDH gera uma chave por lado da troca, enquanto o KEM gera apenas uma por ciclo. No `MCELIECE` o `keygen` ocorre uma única vez por execução (fora do laço); no `ECIES` ocorre uma vez para a chave do destinatário mais uma efêmera por ciclo. Como o
   divisor de `keygen` no painel é o número de chamadas, a linha do ECDH mostra o custo de **uma** geração
   de chave, comparável direto ao KEM; a soma bruta (`benchmark_step_seconds_sum`), porém, continua
   acumulando as duas gerações do ciclo.

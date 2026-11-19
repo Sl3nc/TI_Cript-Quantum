@@ -21,7 +21,9 @@
  * chamada vira "encaps" e a 2ª vira "decaps", alinhando o vocabulário de etapas
  * com KEM/MCELIECE. Isso depende de haver exatamente duas chamadas por ciclo
  * nesses workloads. Note ainda que o ECDH executa keygen duas vezes por ciclo
- * (uma chave por lado), enquanto o KEM executa keygen apenas uma vez.
+ * (uma chave por lado), enquanto o KEM executa keygen apenas uma vez. O MCELIECE
+ * executa keygen uma única vez por execução e o ECIES, uma vez (destinatário)
+ * mais uma efêmera por ciclo.
  *
  * As funções estáticas dos módulos (kdf e AEAD) não são envolvíveis pelo linker,
  * então as etapas "kdf", "encrypt" e "decrypt" são compostas pelas chamadas EVP

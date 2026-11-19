@@ -135,15 +135,15 @@ workload_status run_ecies(long volume, int effort) {
 
     workload_status status = WORKLOAD_OK;
 
-    if (enc_ctx == NULL || dec_ctx == NULL) {
+    EVP_PKEY *recipient_key = NULL;
+    if (enc_ctx == NULL || dec_ctx == NULL || (recipient_key = generate_key(nid)) == NULL) {
         status = WORKLOAD_ERROR;
     }
 
     for (long i = 0; status == WORKLOAD_OK && i < volume; i++) {
-        EVP_PKEY *recipient_key = generate_key(nid);
-        EVP_PKEY *ephemeral_key = recipient_key == NULL ? NULL : generate_key(nid);
+        EVP_PKEY *ephemeral_key = generate_key(nid);
 
-        if (recipient_key == NULL || ephemeral_key == NULL ||
+        if (ephemeral_key == NULL ||
             !ecdh_derive(ephemeral_key, recipient_key, shared_secret_e, field_len) ||
             !derive_key(shared_secret_e, field_len, key_e) ||
             !aead_encrypt(enc_ctx, key_e, IV, aead_ciphertext, tag) ||
@@ -154,8 +154,9 @@ workload_status run_ecies(long volume, int effort) {
         }
 
         EVP_PKEY_free(ephemeral_key);
-        EVP_PKEY_free(recipient_key);
     }
+
+    EVP_PKEY_free(recipient_key);
 
     EVP_CIPHER_CTX_free(enc_ctx);
     EVP_CIPHER_CTX_free(dec_ctx);
