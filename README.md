@@ -119,18 +119,14 @@ permanece sem qualquer medição — a lógica fica em `profiling/instrument.c`,
 `-DBENCH_PROFILE=ON`.
 
 ```bash
-docker build --target profiling -t ti-cript-quantum-profile:latest .
+docker compose build app-profile
 docker compose up -d            # infra de coleta: pushgateway, prometheus, grafana, cadvisor
-docker run --rm -l volume=1000 -l algorithm=DSS -l effort=5 \
-  --network ti-cript-quantum_default \
-  -e PUSHGATEWAY_URL=http://pushgateway:9091/metrics/job/benchmark \
-  ti-cript-quantum-profile:latest -a DSS -e 5 -v 1000
+docker compose run --rm -l volume=1000 -l algorithm=DSS -l effort=5 app-profile -a DSS -e 5 -v 1000
 ```
 
-O `--network` é necessário porque a imagem de profiling envia as métricas por DNS interno do
-Compose (`pushgateway`); o nome da rede é `<projeto>_default`, onde o projeto vem do nome do
-diretório (`docker network ls` confirma o nome). Sem `-e PUSHGATEWAY_URL` a execução roda igual,
-mas não publica nada no Prometheus.
+`app-profile` declara o profile `bench`, então não sobe junto com `docker compose up`, mas o
+`docker compose run` o habilita automaticamente — e o `depends_on` garante o `pushgateway` no ar
+antes do push das métricas por etapa.
 
 O entrypoint de profiling descobre o algoritmo, o esforço e o volume a partir dos próprios
 argumentos (`-a`/`-e`/`-v`), envia a soma e a contagem por etapa ao serviço `pushgateway`, que o
